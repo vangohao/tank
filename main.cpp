@@ -12,6 +12,7 @@
 */
 #define _BOTZONE_ONLINE
 #include <stack>
+#include <vector>
 #include <set>
 #include <string>
 #include <iostream>
@@ -27,6 +28,7 @@ using std::string;
 using std::cin;
 using std::cout;
 using std::endl;
+using std::vector;
 using std::flush;
 using std::getline;
 
@@ -277,8 +279,14 @@ namespace TankGame
 		// 执行 nextAction 中指定的行为并进入下一回合，返回行为是否合法
 		bool DoAction()
 		{
+		    //std::cerr<<"DOACTION"<<currentTurn<<endl;
 			if (!ActionIsValid())
+            {
+                DebugPrint();
+                std::cerr<<nextAction[!mySide][0]<<" "<<nextAction[!mySide][1]<<endl;
+                std::cerr<<"INVALID_ACTION!"<<endl;
 				return false;
+            }
 
 			// 1 移动
 			for (int side = 0; side < sideCount; side++)
@@ -405,6 +413,7 @@ namespace TankGame
 		// 回到上一回合
 		bool Revert()
 		{
+		    //std::cerr<<"REVERT"<<currentTurn<<endl;
 			if (currentTurn == 1)
 				return false;
 
@@ -491,12 +500,12 @@ namespace TankGame
 		// 打印场地
 		void DebugPrint()
 		{
-#ifndef _BOTZONE_ONLINE
-			const string side2String[] = { "蓝", "红" };
-			const string boolean2String[] = { "已炸", "存活" };
+#ifdef _BOTZONE_ONLINE
+			const string side2String[] = { "Blue", "Red" };
+			const string boolean2String[] = { "Dead", "Alived" };
 			const char* boldHR = "==============================";
 			const char* slimHR = "------------------------------";
-			cout << boldHR << endl
+			std::cerr << boldHR << endl
 				<< "图例：" << endl
 				<< ". - 空\t# - 砖\t% - 钢\t* - 基地\t@ - 多个坦克" << endl
 				<< "b - 蓝0\tB - 蓝1\tr - 红0\tR - 红1" << endl
@@ -508,54 +517,78 @@ namespace TankGame
 					switch (gameField[y][x])
 					{
 					case None:
-						cout << '.';
+						std::cerr << '.';
 						break;
 					case Brick:
-						cout << '#';
+						std::cerr << '#';
 						break;
 					case Steel:
-						cout << '%';
+						std::cerr << '%';
 						break;
 					case Base:
-						cout << '*';
+						std::cerr << '*';
 						break;
 					case Blue0:
-						cout << 'b';
+						std::cerr << 'b';
 						break;
 					case Blue1:
-						cout << 'B';
+						std::cerr << 'B';
 						break;
 					case Red0:
-						cout << 'r';
+						std::cerr << 'r';
 						break;
 					case Red1:
-						cout << 'R';
+						std::cerr << 'R';
 						break;
 					default:
-						cout << '@';
+						std::cerr << '@';
 						break;
 					}
 				}
-				cout << endl;
+				std::cerr << endl;
 			}
-			cout << slimHR << endl;
+			std::cerr << slimHR << endl;
 			for (int side = 0; side < sideCount; side++)
 			{
-				cout << side2String[side] << "：基地" << boolean2String[baseAlive[side]];
+				std::cerr << side2String[side] << ":Base" << boolean2String[baseAlive[side]];
 				for (int tank = 0; tank < tankPerSide; tank++)
-					cout << ", 坦克" << tank << boolean2String[tankAlive[side][tank]];
-				cout << endl;
+					std::cerr << ",tank" << tank << boolean2String[tankAlive[side][tank]];
+				std::cerr << endl;
 			}
-			cout << "当前回合：" << currentTurn << "，";
+			std::cerr << "currentTurn" << currentTurn << "，";
 			GameResult result = GetGameResult();
 			if (result == -2)
-				cout << "游戏尚未结束" << endl;
+				std::cerr <<"Going" << endl;
 			else if (result == -1)
-				cout << "游戏平局" << endl;
+				std::cerr << "Equal" << endl;
 			else
-				cout << side2String[result] << "方胜利" << endl;
-			cout << boldHR << endl;
+				std::cerr << side2String[result] << "win" << endl;
+			std::cerr << boldHR << endl;
 #endif
+		}
+
+		int dis(int x0,int y0,int x1,int y1)
+		{
+            if(x0==x1)
+            {
+                int c = 0;
+                for(int i=min(y0,y1) + 1;i<max(y0,y1);i++)
+                {
+                    if(gameField[i][x0] != None)
+                        c++;
+                }
+                return c;
+            }
+            else if(y0 == y1)
+            {
+                int c = 0;
+                for(int i=min(x0,x1) + 1;i<max(x0,x1);i++)
+                {
+                    if(gameField[y0][i] != None)
+                        c++;
+                }
+                return c;
+            }
 		}
 
 		int rush(int id,int side)
@@ -563,11 +596,17 @@ namespace TankGame
 		    int x0=0,y0,best0=INT_MAX;
             y0 = side ? 0 : 8;
             bool flag[2] = {false,false};
+            if(tankAlive[side][id] == false)
+            {
+                return 1000000;
+            }
             if(tankAlive[side][id]  && tankY[side][id] == y0){
                 nextAction[side][id] = tankX[side][id] < baseX[!side] ? RightShoot : LeftShoot;
                 if (nextAction[side][id] > Left && previousActions[currentTurn - 1][side][id] > Left)
                     nextAction[side][id] = Stay;
-                return 0;
+                int c = dis(tankX[side][id],tankY[side][id],baseX[!side],baseY[!side]);
+                if(c==0)return -10000000;
+                return c;
 			}
 			int mp[2][9][9]={0};
 			Action from[2][9][9]={};
@@ -595,18 +634,18 @@ namespace TankGame
                             case Left:
                                 dx = -1;dy = 0; break;
                             }
-                            if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] == Brick){
-                                if(mp[id][x+dx][y+dy] == 0 || mp[id][x+dx][y+dy]>mp[id][x][y] + 2)
+                            if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] == None){
+                                if(mp[id][x+dx][y+dy] == 0 || mp[id][x+dx][y+dy]>mp[id][x][y] + 1)
                                 {
-                                    mp[id][x+dx][y+dy] = mp[id][x][y] + 2;
+                                    mp[id][x+dx][y+dy] = mp[id][x][y] + 1;
                                     from[id][x+dx][y+dy] = act;
                                     q.push(std::make_pair(x+dx,y+dy));
                                 }
                             }
-                            else if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] == None){
-                                if(mp[id][x+dx][y+dy] == 0 || mp[id][x+dx][y+dy]>mp[id][x][y] + 1)
+                            else if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] != Steel){
+                                if(mp[id][x+dx][y+dy] == 0 || mp[id][x+dx][y+dy]>mp[id][x][y] + 2)
                                 {
-                                    mp[id][x+dx][y+dy] = mp[id][x][y] + 1;
+                                    mp[id][x+dx][y+dy] = mp[id][x][y] + 2;
                                     from[id][x+dx][y+dy] = act;
                                     q.push(std::make_pair(x+dx,y+dy));
                                 }
@@ -615,9 +654,9 @@ namespace TankGame
 				}
             for(int i = 0; i<9; i++)
             {
-                if(mp[id][i][y0] < best0 && mp[id][i][y0]!= 0)
+                if(mp[id][i][y0] + dis(i,y0,baseX[!side],baseY[!side]) < best0 && mp[id][i][y0]!= 0)
                 {
-                    best0 = mp[id][i][y0];
+                    best0 = mp[id][i][y0]+ dis(i,y0,baseX[!side],baseY[!side]);
                     x0 = i;
                 }
             }
@@ -633,7 +672,7 @@ namespace TankGame
                 y -= dy[act%4];
             }
             //cout<<3<<endl;
-            if(gameField[y+dy[act%4]][x+dx[act%4]] == Brick)
+            if(gameField[y+dy[act%4]][x+dx[act%4]] != None)
                 nextAction[side][id] = (Action)((int)act + 4);
             else nextAction[side][id] = act;
             if (nextAction[side][id] > Left && previousActions[currentTurn - 1][side][id] > Left)
@@ -713,105 +752,113 @@ namespace TankGame
 		    return std::make_pair(zongflag,zongf0);
 		}
 
-		void spe_judge(int id){
+		void spe_judge(int id,int side){
                 int flag,f0;
-                int x=tankX[mySide][id],y=tankY[mySide][id];
-                //判断是否可直接射死对面基地
+                int x=tankX[side][id],y=tankY[side][id];
+                //判断是否可直接射死对面基地,label为false表示可以
                 bool label = true;
                 flag = face(id,x,y).first;
-                if(previousActions[currentTurn - 1][mySide][id] <= Left && x == baseX[!mySide])
+                if( x == baseX[!side])
                 {
                     int c = 0;
-                    for(int i=min(y,baseY[!mySide]) + 1;i<max(y,baseY[!mySide]);i++)
+                    for(int i=min(y,baseY[!side]) + 1;i<max(y,baseY[!side]);i++)
                     {
                         if(gameField[i][x] != None)
                             c++;
                     }
                     if(c == 0) {
-                        nextAction[mySide][id] = y < baseY[!mySide] ? DownShoot : UpShoot;
-                        label = false;
+                        if(previousActions[currentTurn - 1][side][id] <= Left)
+                        {
+                            nextAction[side][id] = y < baseY[!side] ? DownShoot : UpShoot;
+                            label = false;
+                        }
+                        else nextAction[side][id] = Stay;
                     }
                 }
-                else if(previousActions[currentTurn - 1][mySide][id] <= Left && y == baseY[!mySide])
+                else if(y == baseY[!side])
                 {
                     int c = 0;
-                    for(int i=min(x,baseX[!mySide]) + 1;i<max(x,baseX[!mySide]);i++)
+                    for(int i=min(x,baseX[!side]) + 1;i<max(x,baseX[!side]);i++)
                     {
                         if(gameField[y][i] != None)
                             c++;
                     }
                     if(c == 0)  {
-                        nextAction[mySide][id] = x > baseX[!mySide] ? LeftShoot : RightShoot;
-                        label =false;
+                        if(previousActions[currentTurn - 1][side][id] <= Left)
+                        {
+                            nextAction[side][id] = x > baseX[!side] ? LeftShoot : RightShoot;
+                            label = false;
+                        }
+                        else nextAction[side][id] = Stay;
                     }
                 }
                 if(label ==false) {}
                 else if(flag){                   //可以和对手对射 假如没必要就先rush
-                    if(previousActions[currentTurn - 1][mySide][id] <= Left){
+                    if(previousActions[currentTurn - 1][side][id] <= Left){
                         if(flag == 1){
-                            nextAction[mySide][id] = y<tankY[!mySide][0] ? DownShoot : UpShoot;
+                            nextAction[side][id] = y<tankY[!side][0] ? DownShoot : UpShoot;
                         }
                         else if(flag == 3){
-                            nextAction[mySide][id] =y<tankY[!mySide][1] ? DownShoot : UpShoot;
+                            nextAction[side][id] =y<tankY[!side][1] ? DownShoot : UpShoot;
                         }
                        else if(flag == 2){
-                            nextAction[mySide][id] = x>tankX[!mySide][0] ? LeftShoot : RightShoot;
-                            if(x == tankX[!mySide][0])                          //重叠时预判朝对手rush的方向射击
-                                nextAction[mySide][id] = mySide ?  DownShoot : UpShoot;
+                            nextAction[side][id] = x>tankX[!side][0] ? LeftShoot : RightShoot;
+                            if(x == tankX[!side][0])                          //重叠时预判朝对手rush的方向射击
+                                nextAction[side][id] = side ?  DownShoot : UpShoot;
                         }
                         else if(flag == 4){
-                            nextAction[mySide][id] = x>tankX[!mySide][1] ? LeftShoot : RightShoot;
-                            if(x == tankX[!mySide][1])
-                                nextAction[mySide][id] = mySide ?  DownShoot : UpShoot;
+                            nextAction[side][id] = x>tankX[!side][1] ? LeftShoot : RightShoot;
+                            if(x == tankX[!side][1])
+                                nextAction[side][id] = side ?  DownShoot : UpShoot;
                         }
                     }
                     else{               //我不能 对方可以 就尽量躲避
-                        if(previousActions[currentTurn - 1][!mySide][0] <= Left){
+                        if(previousActions[currentTurn - 1][!side][0] <= Left){
                             if(flag == 1){
-                                int tmp= x>baseX[mySide]? -1 : 1;
+                                int tmp= x>baseX[side]? -1 : 1;
                                 if(CoordValid(x+tmp, y) && gameField[y][x+tmp] == None)
-                                    nextAction[mySide][id] = tmp==1? Right : Left;
+                                    nextAction[side][id] = tmp==1? Right : Left;
                                 else if(CoordValid(x-tmp, y) && gameField[y][x-tmp] == None)
-                                    nextAction[mySide][id] = tmp==1? Left : Right;
+                                    nextAction[side][id] = tmp==1? Left : Right;
                             }
                             else if(flag == 2){
-                                int tmp= mySide? -1 :1;
+                                int tmp= side? -1 :1;
                                 if(CoordValid(x, y+tmp) && gameField[y+tmp][x] == None)
-                                    nextAction[mySide][id] = tmp==1?Down : Up;
+                                    nextAction[side][id] = tmp==1?Down : Up;
                                 else if(CoordValid(x, y-tmp) && gameField[y-tmp][x] == None)
-                                    nextAction[mySide][id] = tmp==1?Up :Down;
+                                    nextAction[side][id] = tmp==1?Up :Down;
                             }
                         }
-                        if(previousActions[currentTurn - 1][!mySide][1] <= Left){
+                        if(previousActions[currentTurn - 1][!side][1] <= Left){
                             if(flag == 3){
                                 if(CoordValid(x+1, y) && gameField[y][x+1] == None)
-                                    nextAction[mySide][id] = Right;
+                                    nextAction[side][id] = Right;
                                 else if(CoordValid(x-1, y) && gameField[y][x-1] == None)
-                                    nextAction[mySide][id] = Left;
+                                    nextAction[side][id] = Left;
                             }
                             else if(flag == 4){
                                 if(CoordValid(x, y+1) && gameField[y+1][x] == None)
-                                    nextAction[mySide][id] = Down;
+                                    nextAction[side][id] = Down;
                                 else if(CoordValid(x, y-1) && gameField[y-1][x] == None)
-                                    nextAction[mySide][id] = Up;
+                                    nextAction[side][id] = Up;
                             }
                         }
                     }
                 }
-                else if( nextAction[mySide][id] <=Left &&nextAction[mySide][id] >=Up){                //下一步会碰到对手
-                    x=tankX[mySide][id] + dx[nextAction[mySide][id]];
-                    y=tankY[mySide][id] + dy[nextAction[mySide][id]];
+                else if( nextAction[side][id] <=Left &&nextAction[side][id] >=Up){                //下一步会碰到对手
+                    x=tankX[side][id] + dx[nextAction[side][id]];
+                    y=tankY[side][id] + dy[nextAction[side][id]];
                     if(flag = face(id,x,y).first){
                         if(flag == 1 || flag == 2){
-                            if(previousActions[currentTurn - 1][!mySide][0] <= Left){
+                            if(previousActions[currentTurn - 1][!side][0] <= Left){
                                 if((rand()%100) >50)
-                                    nextAction[mySide][id] = Stay;
+                                    nextAction[side][id] = Stay;
                             }
                         }
                         else{
-                             if(previousActions[currentTurn - 1][!mySide][1] <= Left){
+                             if(previousActions[currentTurn - 1][!side][1] <= Left){
                                 if((rand()%100) >50)
-                                    nextAction[mySide][id] = Stay;
+                                    nextAction[side][id] = Stay;
                             }
                         }
                     }
@@ -820,28 +867,98 @@ namespace TankGame
 				 //和对手面对面只隔了一堵墙
 				else if(f0 = face(id,x,y).second)
 				{
-				    //cout<<nextAction[mySide][id]<<endl;
-					if(nextAction[mySide][id] > Left)
+				    //cout<<nextAction[side][id]<<endl;
+					if(nextAction[side][id] > Left)
 					{                                   //把外围的墙先开了 开内围的会给对手便利
 					    if(f0 == 1 || f0 ==3){
-                            if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[mySide]+1)
-                                nextAction[mySide][id] = RightShoot;
-                            else if(CoordValid(x-1, y) && gameField[y][x-1] == Brick && x < baseX[mySide]-1)
-                                nextAction[mySide][id] = LeftShoot;
-                            else nextAction[mySide][id] = Stay;
+                            if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[side]+1)
+                                nextAction[side][id] = RightShoot;
+                            else if(CoordValid(x-1, y) && gameField[y][x-1] == Brick && x < baseX[side]-1)
+                                nextAction[side][id] = LeftShoot;
+                            else nextAction[side][id] = Stay;
 					    }
 					    else if(f0 == 2 || f0 == 4){
-                            if(CoordValid(x, y+1) && gameField[y+1][x] == Brick && !mySide)
-                                nextAction[mySide][id] = DownShoot;
-                            else if(CoordValid(x, y-1) && gameField[y-1][x] == Brick && mySide)
-                                nextAction[mySide][id] = UpShoot;
-                            else nextAction[mySide][id] = Stay;
+                            if(CoordValid(x, y+1) && gameField[y+1][x] == Brick && !side)
+                                nextAction[side][id] = DownShoot;
+                            else if(CoordValid(x, y-1) && gameField[y-1][x] == Brick && side)
+                                nextAction[side][id] = UpShoot;
+                            else nextAction[side][id] = Stay;
 					    }
 					}
 				}
 		}
+		vector<int> dfs(int side,int depth)
+        {
+
+            if(depth == 2)
+            {
+                //cout<<rush(0,side)<<" "<<rush(1,side)<<"_____"<<endl;
+                return {rush(0,side),rush(1,side)};
+            }
+            int best0  = 1000000,best1 = 1000000,best2 = 1000000,best3 = 1000000;
+            const Action actcons[9] = {UpShoot,RightShoot,DownShoot,LeftShoot,Up,Right,Down,Left,Stay};
+            Action bestact0=Stay,bestact1=Stay,bestact2=Stay,bestact3=Stay;
+            Action act0,act1;
+            for(int i = 0;i<9;i++)
+            if(ActionIsValid(side,0,act0 = actcons[i])){
+                for(int j = 0;j<9;j++)
+                if(ActionIsValid(side,1,act1 = actcons[j]) )
+                {
+                    /*if(currentTurn < 5)
+                    {
+                        std::cerr<<"!!"<<endl;
+                    }*/
+                    //if(depth==0)
+                    //std::cerr<<currentTurn<<" "<<act1<<" "<<previousActions[currentTurn - 1][side][1]<<endl;
+                    {//cout<<side<<" "<<depth<<" "<<act0<<" "<<act1<<endl;
+                        nextAction[side][0] = act0;
+                        nextAction[side][1] = act1;
+                        int tmp2= rush(0,!side);
+                        spe_judge(0,!side);
+                        int tmp3 = rush(1,!side);
+                        spe_judge(1,!side);
+                        DoAction();
+                        auto tmp = dfs(side, depth+1);
+                        if( tmp[0] + tmp[1]< best0+best1 || (tmp[0] + tmp[1] == best0 +best1 &&tmp2+tmp3>(best2+best3)))  //这个最好的判断0和1应该有联系,需要改
+                        {
+                            //std::cerr<<depth<<" "<<tmp[0]<<" "<<tmp[1]<<" "<<act0<<" "<<act1<<endl;
+
+                            best0 = tmp[0];
+                            bestact0 = act0;
+                            best1 = tmp[1];
+                            bestact1 = act1;
+                            best2 = tmp2;
+                            bestact2 = nextAction[!side][0];
+                            best3 = tmp3;
+                            bestact3 = nextAction[!side][1];
+                            //cout<<0<<" "<<best0<<" "<<bestact0<<endl;
+                        }/*
+                        if( tmp[1] < best1)
+                        {
+                            cout<<1<<" "<<best1<<" "<<bestact1<<endl;
+                        }
+                        if( tmp[2] < best2)  //这个最好的判断0和1应该有联系,需要改
+                        {
+                            cout<<2<<" "<<best2<<" "<<bestact2<<endl;
+                        }
+                        if( tmp[3] < best3)
+                        {
+                            cout<<3<<" "<<best3<<" "<<bestact3<<endl;
+                        }*/
+                        Revert();
+                    }
+                }
+            }
+            if(depth == 0)
+            {
+                nextAction[side][0] = bestact0;
+                nextAction[side][1] = bestact1;
+            }
+            return {best0,best1};
+        }
         void processor()
         {
+            /*
             if(tankAlive[mySide][0]){
                 rush(0,mySide);
                 spe_judge(0);
@@ -850,7 +967,11 @@ namespace TankGame
             if(tankAlive[mySide][1]){
                 rush(1,mySide);
                 spe_judge(1);
-            }
+            }*/
+            dfs(mySide,0);
+            std::cerr<<nextAction[mySide][0]<<" "<<nextAction[mySide][1]<<endl;
+            if(tankAlive[mySide][0]) spe_judge(0,mySide);
+            if(tankAlive[mySide][1]) spe_judge(1,mySide);
         }           //end of processor
 
         // end of Tank
