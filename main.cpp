@@ -3,11 +3,12 @@
 先rush基地
 对一些情况特判，比如需要对射，需要躲避
 
-希望更新内容：
-假如对方更快就需要防守，可以用身体挡住对方
-***假如面前只隔一堵墙 不要随便社保，因为下一回合可能躲不开 就必死了
-（打第一的时候经常这样死）
-可以用DoAction模拟一下 我没有用
+10.28 10:00
+对只隔一堵墙的情况进行了补充
+处理了重叠情况
+
+对射处理需要更新 敌人经常溜走 就浪费了一步
+建议在马上碰面时提前射击，第一名是直接冲过来的，其他人没有试过
 */
 #define _BOTZONE_ONLINE
 #include <stack>
@@ -557,23 +558,23 @@ namespace TankGame
 #endif
 		}
 
-		void rush(int id)
+		int rush(int id,int side)
 		{
 		    int x0=0,y0,best0=INT_MAX;
-            y0 = mySide ? 0 : 8;
+            y0 = side ? 0 : 8;
             bool flag[2] = {false,false};
-            if(tankAlive[mySide][id]  && tankY[mySide][id] == y0){
-                nextAction[mySide][id] = tankX[mySide][id] < baseX[!mySide] ? RightShoot : LeftShoot;
-                if (nextAction[mySide][id] > Left && previousActions[currentTurn - 1][mySide][id] > Left)
-                    nextAction[mySide][id] = Stay;
-                return;
+            if(tankAlive[side][id]  && tankY[side][id] == y0){
+                nextAction[side][id] = tankX[side][id] < baseX[!side] ? RightShoot : LeftShoot;
+                if (nextAction[side][id] > Left && previousActions[currentTurn - 1][side][id] > Left)
+                    nextAction[side][id] = Stay;
+                return 0;
 			}
 			int mp[2][9][9]={0};
 			Action from[2][9][9]={};
 			std::queue<std::pair<int,int> > q;
             int x,y;
-				x = tankX[mySide][id];
-				y = tankY[mySide][id];
+				x = tankX[side][id];
+				y = tankY[side][id];
 				q.push(std::make_pair(x,y));
 				mp[id][x][y] = 1;
 				while(!q.empty())
@@ -624,7 +625,7 @@ namespace TankGame
             x = x0;
             y = y0;
             Action act;
-            while(x != tankX[mySide][id] || y!=tankY[mySide][id])
+            while(x != tankX[side][id] || y!=tankY[side][id])
             {
                 //cout<<x<<" "<<y<<endl;
                 act = from[id][x][y];
@@ -633,11 +634,12 @@ namespace TankGame
             }
             //cout<<3<<endl;
             if(gameField[y+dy[act%4]][x+dx[act%4]] == Brick)
-                nextAction[mySide][id] = (Action)((int)act + 4);
-            else nextAction[mySide][id] = act;
-            if (nextAction[mySide][id] > Left && previousActions[currentTurn - 1][mySide][id] > Left)
-                nextAction[mySide][id] = Stay;
-            //cout<<nextAction[mySide][id] <<endl;
+                nextAction[side][id] = (Action)((int)act + 4);
+            else nextAction[side][id] = act;
+            if (nextAction[side][id] > Left && previousActions[currentTurn - 1][side][id] > Left)
+                nextAction[side][id] = Stay;
+            //cout<<nextAction[side][id] <<endl;
+            return best0;
 		}
 
 		std::pair<int,int> face(int id,int x,int y)
@@ -716,6 +718,7 @@ namespace TankGame
                 int x=tankX[mySide][id],y=tankY[mySide][id];
                 //判断是否可直接射死对面基地
                 bool label = true;
+                flag = face(id,x,y).first;
                 if(previousActions[currentTurn - 1][mySide][id] <= Left && x == baseX[!mySide])
                 {
                     int c = 0;
@@ -743,7 +746,7 @@ namespace TankGame
                     }
                 }
                 if(label ==false) {}
-                else if(flag = face(id,x,y).first){                   //可以和对手对射 假如没必要就先rush
+                else if(flag){                   //可以和对手对射 假如没必要就先rush
                     if(previousActions[currentTurn - 1][mySide][id] <= Left){
                         if(flag == 1){
                             nextAction[mySide][id] = y<tankY[!mySide][0] ? DownShoot : UpShoot;
@@ -753,24 +756,30 @@ namespace TankGame
                         }
                        else if(flag == 2){
                             nextAction[mySide][id] = x>tankX[!mySide][0] ? LeftShoot : RightShoot;
+                            if(x == tankX[!mySide][0])                          //重叠时预判朝对手rush的方向射击
+                                nextAction[mySide][id] = mySide ?  DownShoot : UpShoot;
                         }
                         else if(flag == 4){
                             nextAction[mySide][id] = x>tankX[!mySide][1] ? LeftShoot : RightShoot;
+                            if(x == tankX[!mySide][1])
+                                nextAction[mySide][id] = mySide ?  DownShoot : UpShoot;
                         }
                     }
                     else{               //我不能 对方可以 就尽量躲避
                         if(previousActions[currentTurn - 1][!mySide][0] <= Left){
                             if(flag == 1){
-                                if(CoordValid(x+1, y) && gameField[y][x+1] == None)
-                                    nextAction[mySide][id] = Right;
-                                else if(CoordValid(x-1, y) && gameField[y][x-1] == None)
-                                    nextAction[mySide][id] = Left;
+                                int tmp= x>baseX[mySide]? -1 : 1;
+                                if(CoordValid(x+tmp, y) && gameField[y][x+tmp] == None)
+                                    nextAction[mySide][id] = tmp==1? Right : Left;
+                                else if(CoordValid(x-tmp, y) && gameField[y][x-tmp] == None)
+                                    nextAction[mySide][id] = tmp==1? Left : Right;
                             }
                             else if(flag == 2){
-                                if(CoordValid(x, y+1) && gameField[y+1][x] == None)
-                                    nextAction[mySide][id] = Down;
-                                else if(CoordValid(x, y-1) && gameField[y-1][x] == None)
-                                    nextAction[mySide][id] = Up;
+                                int tmp= mySide? -1 :1;
+                                if(CoordValid(x, y+tmp) && gameField[y+tmp][x] == None)
+                                    nextAction[mySide][id] = tmp==1?Down : Up;
+                                else if(CoordValid(x, y-tmp) && gameField[y-tmp][x] == None)
+                                    nextAction[mySide][id] = tmp==1?Up :Down;
                             }
                         }
                         if(previousActions[currentTurn - 1][!mySide][1] <= Left){
@@ -795,13 +804,13 @@ namespace TankGame
                     if(flag = face(id,x,y).first){
                         if(flag == 1 || flag == 2){
                             if(previousActions[currentTurn - 1][!mySide][0] <= Left){
-                                if((rand()%100) >30)
+                                if((rand()%100) >50)
                                     nextAction[mySide][id] = Stay;
                             }
                         }
                         else{
                              if(previousActions[currentTurn - 1][!mySide][1] <= Left){
-                                if((rand()%100) >30)
+                                if((rand()%100) >50)
                                     nextAction[mySide][id] = Stay;
                             }
                         }
@@ -811,21 +820,35 @@ namespace TankGame
 				 //和对手面对面只隔了一堵墙
 				else if(f0 = face(id,x,y).second)
 				{
+				    //cout<<nextAction[mySide][id]<<endl;
 					if(nextAction[mySide][id] > Left)
-					{
-						nextAction[mySide][id] = Stay;
+					{                                   //把外围的墙先开了 开内围的会给对手便利
+					    if(f0 == 1 || f0 ==3){
+                            if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[mySide]+1)
+                                nextAction[mySide][id] = RightShoot;
+                            else if(CoordValid(x-1, y) && gameField[y][x-1] == Brick && x < baseX[mySide]-1)
+                                nextAction[mySide][id] = LeftShoot;
+                            else nextAction[mySide][id] = Stay;
+					    }
+					    else if(f0 == 2 || f0 == 4){
+                            if(CoordValid(x, y+1) && gameField[y+1][x] == Brick && !mySide)
+                                nextAction[mySide][id] = DownShoot;
+                            else if(CoordValid(x, y-1) && gameField[y-1][x] == Brick && mySide)
+                                nextAction[mySide][id] = UpShoot;
+                            else nextAction[mySide][id] = Stay;
+					    }
 					}
 				}
 		}
         void processor()
         {
             if(tankAlive[mySide][0]){
-                rush(0);
+                rush(0,mySide);
                 spe_judge(0);
             }
 
             if(tankAlive[mySide][1]){
-                rush(1);
+                rush(1,mySide);
                 spe_judge(1);
             }
         }           //end of processor
