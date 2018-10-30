@@ -634,7 +634,9 @@ namespace TankGame
                             case Left:
                                 dx = -1;dy = 0; break;
                             }
-                            if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] == None){
+                            if(CoordValid(x+dx, y+dy) && (gameField[y+dy][x+dx] == None || gameField[y+dy][x+dx]==Blue0
+                                                          ||gameField[y+dy][x+dx]==Blue1||gameField[y+dy][x+dx]==Red0
+                                                          ||gameField[y+dy][x+dx]==Red1)){
                                 if(mp[id][x+dx][y+dy] == 0 || mp[id][x+dx][y+dy]>mp[id][x][y] + 1)
                                 {
                                     mp[id][x+dx][y+dy] = mp[id][x][y] + 1;
@@ -795,19 +797,23 @@ namespace TankGame
                 if(label ==false) {}
                 else if(flag){                   //可以和对手对射 假如没必要就先rush
                     if(previousActions[currentTurn - 1][side][id] <= Left){
-                        if(flag == 1){
-                            nextAction[side][id] = y<tankY[!side][0] ? DownShoot : UpShoot;
+                         if(flag == 1){
+                            if(nextAction[side][id] !=Left && nextAction[side][id] != Right)
+                                nextAction[side][id] = y<tankY[!side][0] ? DownShoot : UpShoot;
                         }
                         else if(flag == 3){
-                            nextAction[side][id] =y<tankY[!side][1] ? DownShoot : UpShoot;
+                            if(nextAction[side][id] !=Left && nextAction[side][id] != Right)
+                                nextAction[side][id] =y<tankY[!side][1] ? DownShoot : UpShoot;
                         }
                        else if(flag == 2){
-                            nextAction[side][id] = x>tankX[!side][0] ? LeftShoot : RightShoot;
+                            if(nextAction[side][id] !=Up && nextAction[side][id] != Down)
+                                nextAction[side][id] = x>tankX[!side][0] ? LeftShoot : RightShoot;
                             if(x == tankX[!side][0])                          //重叠时预判朝对手rush的方向射击
                                 nextAction[side][id] = side ?  DownShoot : UpShoot;
                         }
                         else if(flag == 4){
-                            nextAction[side][id] = x>tankX[!side][1] ? LeftShoot : RightShoot;
+                            if(nextAction[side][id] !=Up && nextAction[side][id] != Down)
+                                nextAction[side][id] = x>tankX[!side][1] ? LeftShoot : RightShoot;
                             if(x == tankX[!side][1])
                                 nextAction[side][id] = side ?  DownShoot : UpShoot;
                         }
@@ -890,7 +896,7 @@ namespace TankGame
 		vector<int> dfs(int side,int depth)
         {
 
-            if(depth == 1)
+            if(depth == 2)
             {
                 //cout<<rush(0,side)<<" "<<rush(1,side)<<"_____"<<endl;
                 return {rush(0,side),rush(1,side)};
@@ -933,7 +939,7 @@ namespace TankGame
                             bestact2 = act2;
                             best3 = tmp3;
                             bestact3 = act3;
-                            std::cerr<<"bestact0 "<<bestact0<<" bestact1 "<<bestact1<<" bestact2 "<<bestact2<<" bestact3 "<<bestact3<<endl;
+                            //std::cerr<<"bestact0 "<<bestact0<<" bestact1 "<<bestact1<<" bestact2 "<<bestact2<<" bestact3 "<<bestact3<<endl;
                             //cout<<0<<" "<<best0<<" "<<bestact0<<endl;
                         }/*
                         if( tmp[1] < best1)
@@ -959,6 +965,116 @@ namespace TankGame
             }
             return {best0,best1};
         }
+        int flyto(int id,int side,int posx,int posy)
+        {
+            int mp[3][10][10]={};
+            Action from[2][9][9]={};
+			std::queue<std::pair<int,int> > q;
+            int x,y;
+				x = tankX[side][id];
+				y = tankY[side][id];
+				q.push(std::make_pair(x,y));
+				mp[id][x][y] = 1;
+				while(!q.empty())
+				{
+					x = q.front().first; y = q.front().second; q.pop();
+					//cout<<x<<"  "<<y<<endl;
+                    for(Action act = Up; act <= Left; act=(Action)((int)act+1))
+					{
+                            int dx,dy;
+                            switch(act )
+                            {
+                            case Up:
+                                dx = 0;dy = -1;break;
+                            case Right:
+                                dx = 1;dy = 0; break;
+                            case Down:
+                                dx = 0;dy = 1; break;
+                            case Left:
+                                dx = -1;dy = 0; break;
+                            }
+                            if(CoordValid(x+dx, y+dy) && (gameField[y+dy][x+dx] == None || gameField[y+dy][x+dx]==Blue0
+                                                          ||gameField[y+dy][x+dx]==Blue1||gameField[y+dy][x+dx]==Red0
+                                                          ||gameField[y+dy][x+dx]==Red1)){
+                                if(mp[id][x+dx][y+dy] == 0 || mp[id][x+dx][y+dy]>mp[id][x][y] + 1)
+                                {
+                                    mp[id][x+dx][y+dy] = mp[id][x][y] + 1;
+                                    from[id][x+dx][y+dy] = act;
+                                    q.push(std::make_pair(x+dx,y+dy));
+                                }
+                            }
+                            else if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] != Steel){
+                                if(mp[id][x+dx][y+dy] == 0 || mp[id][x+dx][y+dy]>mp[id][x][y] + 2)
+                                {
+                                    mp[id][x+dx][y+dy] = mp[id][x][y] + 2;
+                                    from[id][x+dx][y+dy] = act;
+                                    q.push(std::make_pair(x+dx,y+dy));
+                                }
+                            }
+					}
+				}
+            x = posx;
+            y = posy;
+            Action act;
+            while(x != tankX[side][id] || y!=tankY[side][id])
+            {
+                //cout<<x<<" "<<y<<endl;
+                act = from[id][x][y];
+                x -= dx[act%4];
+                y -= dy[act%4];
+            }
+            //cout<<3<<endl;
+            if(gameField[y+dy[act%4]][x+dx[act%4]] != None)
+                nextAction[side][id] = (Action)((int)act + 4);
+            else nextAction[side][id] = act;
+            if (nextAction[side][id] > Left && previousActions[currentTurn - 1][side][id] > Left)
+                nextAction[side][id] = Stay;
+            return mp[id][posx][posy];
+        }
+        void defend(int id,int side)
+        {
+            int posx = baseX[side] + ((side ^ id) ? 1 : -1);
+            int posy = baseY[side];
+            if( posx != tankX[side][id] || posy!=tankY[side][id])
+            {
+                flyto(id,side,posx,posy);
+                spe_judge(id,side);
+            }
+            else
+            {
+                int flag;
+                if(flag = face(id,side,posx,posy).first)
+                {
+                    if(previousActions[currentTurn - 1][side][id] <= Left){
+                         if(flag == 1){
+                            if(nextAction[side][id] !=Left && nextAction[side][id] != Right)
+                                nextAction[side][id] = posy<tankY[!side][0] ? DownShoot : UpShoot;
+                        }
+                        else if(flag == 3){
+                            if(nextAction[side][id] !=Left && nextAction[side][id] != Right)
+                                nextAction[side][id] =posy<tankY[!side][1] ? DownShoot : UpShoot;
+                        }
+                       else if(flag == 2){
+                            if(nextAction[side][id] !=Up && nextAction[side][id] != Down)
+                                nextAction[side][id] = posx>tankX[!side][0] ? LeftShoot : RightShoot;
+                        }
+                        else if(flag == 4){
+                            if(nextAction[side][id] !=Up && nextAction[side][id] != Down)
+                                nextAction[side][id] = posx>tankX[!side][1] ? LeftShoot : RightShoot;
+                        }
+                    }
+                }
+                else
+                {
+                    nextAction[side][id] = Stay;
+                }
+            }
+        }
+        int burst(int id,int side)
+        {
+            if(side==0) return tankY[side][id] - 4;
+            else return 4 - tankY[side][id];
+        }
         void processor()
         {
             /*
@@ -971,10 +1087,24 @@ namespace TankGame
                 rush(1,mySide);
                 spe_judge(1);
             }*/
-            dfs(mySide,0);
-            std::cerr<<nextAction[mySide][0]<<" "<<nextAction[mySide][1]<<endl;
-            if(tankAlive[mySide][0]) spe_judge(0,mySide);
-            if(tankAlive[mySide][1]) spe_judge(1,mySide);
+            int guard = 2;
+            if(rush(0,mySide) < rush(1,mySide)) guard = 1;
+            else if(rush(0,mySide) > rush(1,mySide)) guard = 0;
+            if(guard < 2 && rush(guard,mySide) <= rush(!guard,!mySide)) guard = 2;
+            if(guard < 2 && !(burst(!guard,!mySide) >=-1 && burst(guard,mySide) <= -1) ) guard = 2;
+            if(guard == 2 || !(tankAlive[mySide][0] && tankAlive[mySide][1]))//被打中后应该防守还是进攻?
+            {
+                dfs(mySide,0);
+                std::cerr<<nextAction[mySide][0]<<" "<<nextAction[mySide][1]<<endl;
+                if(tankAlive[mySide][0]) spe_judge(0,mySide);
+                if(tankAlive[mySide][1]) spe_judge(1,mySide);
+            }
+            else
+            {
+                dfs(mySide,0);
+                defend(guard,mySide);
+                if(tankAlive[mySide][!guard]) spe_judge(!guard,mySide);
+            }
         }           //end of processor
 
         // end of Tank
