@@ -681,15 +681,15 @@ namespace TankGame
             return best0;
 		}
 
-		std::pair<int,int> face(int id,int x,int y)
+		std::pair<int,int> face(int id,int side,int x,int y)
 		{
 		    int zongflag=0;
 			int zongf0 = 0;
-		    if(x==tankX[!mySide][0]){
+		    if(x==tankX[!side][0]){
                 int flag=1;
 				int f0 = 1;
 				int c = 0;
-                for(int i=min(y,tankY[!mySide][0])+1;i<max(y,tankY[!mySide][0]);i++)
+                for(int i=min(y,tankY[!side][0])+1;i<max(y,tankY[!side][0]);i++)
                 {
 				if(gameField[i][x] == Brick)
 					{c++;}
@@ -701,11 +701,11 @@ namespace TankGame
 				if(flag > zongflag) zongflag = flag;
 				if(f0 > zongf0) zongf0 = f0;
 		    }
-		    if(y==tankY[!mySide][0]){   //删除了3个else
+		    if(y==tankY[!side][0]){   //删除了3个else
 		        int flag=2;
 				int f0 = 2;
 				int c = 0;
-                for(int i=min(x,tankX[!mySide][0])+1;i<max(x,tankX[!mySide][0]);i++)
+                for(int i=min(x,tankX[!side][0])+1;i<max(x,tankX[!side][0]);i++)
                 {
 				if(gameField[y][i] == Brick)
 					{c++;}
@@ -717,11 +717,11 @@ namespace TankGame
 				if(flag > zongflag) zongflag = flag;
 				if(f0 > zongf0) zongf0 = f0;
 		    }
-		    if(x==tankX[!mySide][1]){
+		    if(x==tankX[!side][1]){
 		        int flag=3;
 				int f0 = 3;
 				int c = 0;
-                for(int i=min(y,tankY[!mySide][1])+1;i<max(y,tankY[!mySide][1]);i++)
+                for(int i=min(y,tankY[!side][1])+1;i<max(y,tankY[!side][1]);i++)
                 {
 				if(gameField[i][x] == Brick)
 					{c++;}
@@ -733,11 +733,11 @@ namespace TankGame
 				if(flag > zongflag) zongflag = flag;
 				if(f0 > zongf0) zongf0 = f0;
 		    }
-		    if(y==tankY[!mySide][1]){
+		    if(y==tankY[!side][1]){
 		        int flag=4;
 				int f0 = 4;
 				int c = 0;
-                for(int i=min(x,tankX[!mySide][1])+1;i<max(x,tankX[!mySide][1]);i++)
+                for(int i=min(x,tankX[!side][1])+1;i<max(x,tankX[!side][1]);i++)
                 {
 				if(gameField[y][i] == Brick)
 					{c++;}
@@ -757,7 +757,7 @@ namespace TankGame
                 int x=tankX[side][id],y=tankY[side][id];
                 //判断是否可直接射死对面基地,label为false表示可以
                 bool label = true;
-                flag = face(id,x,y).first;
+                flag = face(id,side,x,y).first;
                 if( x == baseX[!side])
                 {
                     int c = 0;
@@ -848,7 +848,7 @@ namespace TankGame
                 else if( nextAction[side][id] <=Left &&nextAction[side][id] >=Up){                //下一步会碰到对手
                     x=tankX[side][id] + dx[nextAction[side][id]];
                     y=tankY[side][id] + dy[nextAction[side][id]];
-                    if(flag = face(id,x,y).first){
+                    if(flag = face(id,side,x,y).first){
                         if(flag == 1 || flag == 2){
                             if(previousActions[currentTurn - 1][!side][0] <= Left){
                                 if((rand()%100) >50)
@@ -865,7 +865,7 @@ namespace TankGame
                 }
 
 				 //和对手面对面只隔了一堵墙
-				else if(f0 = face(id,x,y).second)
+				else if(f0 = face(id,side,x,y).second)
 				{
 				    //cout<<nextAction[side][id]<<endl;
 					if(nextAction[side][id] > Left)
@@ -890,7 +890,7 @@ namespace TankGame
 		vector<int> dfs(int side,int depth)
         {
 
-            if(depth == 2)
+            if(depth == 1)
             {
                 //cout<<rush(0,side)<<" "<<rush(1,side)<<"_____"<<endl;
                 return {rush(0,side),rush(1,side)};
@@ -898,7 +898,7 @@ namespace TankGame
             int best0  = 1000000,best1 = 1000000,best2 = 1000000,best3 = 1000000;
             const Action actcons[9] = {UpShoot,RightShoot,DownShoot,LeftShoot,Up,Right,Down,Left,Stay};
             Action bestact0=Stay,bestact1=Stay,bestact2=Stay,bestact3=Stay;
-            Action act0,act1;
+            Action act0,act1,act2,act3;
             for(int i = 0;i<9;i++)
             if(ActionIsValid(side,0,act0 = actcons[i])){
                 for(int j = 0;j<9;j++)
@@ -917,6 +917,8 @@ namespace TankGame
                         spe_judge(0,!side);
                         int tmp3 = rush(1,!side);
                         spe_judge(1,!side);
+                        act2 = nextAction[!side][0];
+                        act3 = nextAction[!side][1];
                         DoAction();
                         auto tmp = dfs(side, depth+1);
                         if( tmp[0] + tmp[1]< best0+best1 || (tmp[0] + tmp[1] == best0 +best1 &&tmp2+tmp3>(best2+best3)))  //这个最好的判断0和1应该有联系,需要改
@@ -928,9 +930,10 @@ namespace TankGame
                             best1 = tmp[1];
                             bestact1 = act1;
                             best2 = tmp2;
-                            bestact2 = nextAction[!side][0];
+                            bestact2 = act2;
                             best3 = tmp3;
-                            bestact3 = nextAction[!side][1];
+                            bestact3 = act3;
+                            std::cerr<<"bestact0 "<<bestact0<<" bestact1 "<<bestact1<<" bestact2 "<<bestact2<<" bestact3 "<<bestact3<<endl;
                             //cout<<0<<" "<<best0<<" "<<bestact0<<endl;
                         }/*
                         if( tmp[1] < best1)
