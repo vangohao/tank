@@ -216,6 +216,8 @@ namespace TankGame
 		// 本回合双方即将执行的动作，需要手动填入
 		Action nextAction[sideCount][tankPerSide] = { { Invalid, Invalid },{ Invalid, Invalid } };
 
+		// 判断行为是否合法（出界或移动到非空格子算作非法）
+		// 未考虑坦克是否存活
 		bool ActionIsValid(int side, int tank, Action act,int xx=-1,int yy=-1)
 		{
 		    if (xx==-1 && yy==-1)
@@ -246,70 +248,6 @@ namespace TankGame
             return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*mySide));
 		}
 
-		// 判断行为是否合法（出界或移动到非空格子算作非法）
-		// 未考虑坦克是否存活
-		bool ActionIsValid_adopted(int side, int tank, Action act,int xx=-1,int yy=-1)
-		{
-		    if (xx==-1 && yy==-1)
-            {
-                xx = tankX[side][tank];
-                yy = tankY[side][tank];
-            }
-			if (act == Invalid)
-				return false;
-            //cout<<previousActions[currentTurn - 1][side][tank]<<endl;
-			if (act > Left && previousActions[currentTurn - 1][side][tank] > Left) // 连续两回合射击
-				return false;
-
-            if (act == Stay)
-				return true;
-            if (act>Left)
-                {
-                    bool f = false;
-                    int i = xx;int j = yy;
-                    i+=dx[act%4];
-                    j+=dy[act%4];
-                    while(CoordValid(i,j))
-                    {
-                        if(gameField[j][i] == Brick || gameField[j][i] == Steel || gameField[j][i] == Base)
-                        {
-                            f=true;
-                            break;
-                        }
-                        for(int s= -1;s<=1;++s)
-                            for(int t = -1;t<=1;++t)
-                             if(CoordValid(i+s,j+t) &&
-                              (  ( (gameField[j+t][i+s]==Blue0 || gameField[j+t][i+s] ==Blue1)&& side == 1)
-                                ||( (gameField[j+t][i+s]==Red0 || gameField[j+t][i+s] ==Red1)&& side == 0)
-                               ))
-                        {
-                            if( i+s != xx || j+t != yy)
-                             {
-                                f = true;
-                                break;
-                             }
-                        }
-                        i+=dx[act%4];
-                        j+=dy[act%4];
-                        if(f) break;
-                    }
-                    return f;
-                }
-            int x,y;
-            if(act <= Left)
-            {
-                x = xx + dx[act];
-				y = yy + dy[act];
-				return CoordValid(x, y) && gameField[y][x] == None;
-            }
-            else{
-                x = xx + dx[act%4];
-				y = yy + dy[act%4];
-            }
-            if(act > Left && x == baseX[side] && y == baseY[side]) return false;
-            return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*mySide));
-		}
-
 		// 判断 nextAction 中的所有行为是否都合法
 		// 忽略掉未存活的坦克
 		bool ActionIsValid()
@@ -325,7 +263,7 @@ namespace TankGame
 		void _destroyTank(int side, int tank)
 		{
 			tankAlive[side][tank] = false;
-			//tankX[side][tank] = tankY[side][tank] = -1;
+			tankX[side][tank] = tankY[side][tank] = -1;
 		}
 
 		void _revertTank(int side, int tank, DisappearLog& log)
@@ -663,7 +601,6 @@ namespace TankGame
 
 		int rush(int id,int side)
 		{
-		    //std::cerr<<"RUSH"<<endl;
 		    int x0=0,y0,best0=INT_MAX;
             y0 = side ? 0 : 8;
             bool flag[2] = {false,false};
@@ -751,7 +688,6 @@ namespace TankGame
             if (nextAction[side][id] > Left && previousActions[currentTurn - 1][side][id] > Left)
                 nextAction[side][id] = Stay;
             //cout<<nextAction[side][id] <<endl;
-            //std::cerr<<"ENDOFRUSH"<<endl;
             return best0;
 		}
 
@@ -826,17 +762,6 @@ namespace TankGame
 		    return std::make_pair(zongflag,zongf0);
 		}
 
-		bool isacta2b(Action act, int x1,int y1,int x2,int y2)
-		{
-		    while(CoordValid(x1,y1))
-            {
-                x1+=dx[act%4];
-                y1+=dy[act%4];
-                if(x1==x2 && y1==y2) return true;
-            }
-            return false;
-		}
-
 		void spe_judge(int id,int side){
                 int flag,f0;
                 int x=tankX[side][id],y=tankY[side][id];
@@ -891,13 +816,13 @@ namespace TankGame
                        else if(flag == 2){
                             if(nextAction[side][id] !=Up && nextAction[side][id] != Down)
                                 nextAction[side][id] = x>tankX[!side][0] ? LeftShoot : RightShoot;
-                            if(x == tankX[!side][0] && rand()%100 > 50)                          //重叠时预判朝对手rush的方向射击
+                            if(x == tankX[!side][0])                          //重叠时预判朝对手rush的方向射击
                                 nextAction[side][id] = side ?  DownShoot : UpShoot;
                         }
                         else if(flag == 4){
                             if(nextAction[side][id] !=Up && nextAction[side][id] != Down)
                                 nextAction[side][id] = x>tankX[!side][1] ? LeftShoot : RightShoot;
-                            if(x == tankX[!side][1] && rand()%100 > 50)
+                            if(x == tankX[!side][1])
                                 nextAction[side][id] = side ?  DownShoot : UpShoot;
                         }
                     }
@@ -959,18 +884,14 @@ namespace TankGame
 				    //cout<<nextAction[side][id]<<endl;
 					if(nextAction[side][id] > Left)
 					{                                   //把外围的墙先开了 开内围的会给对手便利
-					    if((f0 == 1 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
-            ||      (f0 == 3 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
-                        {
+					    if(f0 == 1 || f0 ==3){
                             if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[side]+1)
                                 nextAction[side][id] = RightShoot;
                             else if(CoordValid(x-1, y) && gameField[y][x-1] == Brick && x < baseX[side]-1)
                                 nextAction[side][id] = LeftShoot;
                             else nextAction[side][id] = Stay;
 					    }
-					    else if((f0 == 2 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
-            ||      (f0 == 4 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
-                        {
+					    else if(f0 == 2 || f0 == 4){
                             if(CoordValid(x, y+1) && gameField[y+1][x] == Brick && !side)
                                 nextAction[side][id] = DownShoot;
                             else if(CoordValid(x, y-1) && gameField[y-1][x] == Brick && side)
@@ -983,45 +904,29 @@ namespace TankGame
 		vector<int> dfs(int side,int depth)
         {
             //std::cerr<<guard[0]<<" "<<guard[1]<<endl;
-            if(baseAlive[!side] == false && baseAlive[side]==true)
-            {
-                return {-10000000 * (5-depth),-10000000 * (5-depth)};
-            }
-            else if(baseAlive[side]==false && baseAlive[!side] == true)
-            {
-                return {1000000*depth,1000000*depth};
-            }
-            else if(baseAlive[side] == false && baseAlive[!side] ==false)
-            {
-                return {-5000000 * (5-depth), -5000000 *(5-depth)};
-            }
-            //if(depth == 3 || (depth==2 && guard[0] + guard[1] ==0))
-            if(depth ==2)
+            if(depth == 4 || (depth==2 && guard[0] + guard[1] ==0))
             {
                 //std::cerr<<depth<<endl;
              //   std::cerr<<rush(0,side)<<" "<<rush(1,side)<<"_____"<<endl;
                 return {rush(0,side),rush(1,side)};
             }
             int best[4]  = {1000000,1000000,1000000,1000000};
-            Action actcons[2][9] = {{Down,DownShoot,RightShoot,LeftShoot,UpShoot,Right,Left,Stay,Up},
-                                    {Up,UpShoot,RightShoot,LeftShoot,DownShoot,Right,Left,Stay,Down}};
-            if(rand()%100 >40)
-            {actcons[0][0]  = DownShoot; actcons[0][1] = Down;
-                actcons[1][0] = UpShoot;actcons[1][1] = Up;
-            }
+            Action actcons[2][9] = {{DownShoot,RightShoot,LeftShoot,UpShoot,Down,Right,Left,Stay,Up},
+                                    {UpShoot,RightShoot,LeftShoot,DownShoot,Up,Right,Left,Stay,Down}};
+
             Action bestact[4]={Stay,Stay,Stay,Stay};
             Action act[4];
             for(int i = 0;i<9;i++)
-            if(ActionIsValid_adopted(side,0,act[0] = actcons[side][i])){
+            if(ActionIsValid(side,0,act[0] = actcons[side][i])){
                 for(int j = 0;j<9;j++)
-                if(ActionIsValid_adopted(side,1,act[1] = actcons[side][j]) )
+                if(ActionIsValid(side,1,act[1] = actcons[side][j]) )
                 {
                     /*if(currentTurn < 5)
                     {
                         std::cerr<<"!!"<<endl;
                     }*/
                     //if(depth==0)
-                    //std::cerr<<currentTurn<<" "<<act[0]<<" "<<previousActions[currentTurn - 1][side][0]<<endl;
+                    //std::cerr<<currentTurn<<" "<<act1<<" "<<previousActions[currentTurn - 1][side][1]<<endl;
                     //cout<<side<<" "<<depth<<" "<<act0<<" "<<act1<<endl;
                         nextAction[side][0] = act[0];
                         nextAction[side][1] = act[1];
@@ -1051,7 +956,7 @@ namespace TankGame
                             bestact[2] = act[2];
                             best[3] = tmp3;
                             bestact[3] = act[3];
-                           std::cerr<<"depth"<<depth<<"bestact0 "<<bestact[0]<<" bestact1 "<<bestact[1]<<" bestact2 "<<bestact[2]<<" bestact3 "<<bestact[3]<<endl;
+                         //  std::cerr<<"depth"<<depth<<"bestact0 "<<bestact[0]<<" bestact1 "<<bestact[1]<<" bestact2 "<<bestact[2]<<" bestact3 "<<bestact[3]<<endl;
                         }
                         Revert();
                         if(guard[1]==1) break;
@@ -1067,12 +972,6 @@ namespace TankGame
         }
         int flyto(int id,int side,int posx,int posy)
         {
-            /*std::cerr<<"begin of flyto"<<id<<" "<<side<<" "<<posx<<" "<<posy<<endl;
-            std::cerr<<side<<" 0"<<tankX[side][0]<<" "<<tankY[side][0]<<endl;
-            std::cerr<<side<<" 1"<<tankX[side][1]<<" "<<tankY[side][1]<<endl;
-            std::cerr<<!side<<" 0"<<tankX[!side][0]<<" "<<tankY[!side][0]<<endl;
-            std::cerr<<!side<<" 1"<<tankX[!side][1]<<" "<<tankY[!side][1]<<endl;
-            */
             int mp[3][10][10]={};
             Action from[2][9][9]={};
 			std::queue<std::pair<int,int> > q;
@@ -1084,7 +983,6 @@ namespace TankGame
 				while(!q.empty())
 				{
 					x = q.front().first; y = q.front().second; q.pop();
-					//std::cerr<<q.size()<<endl;
 					//cout<<x<<"  "<<y<<endl;
                     for(Action act = Up; act <= Left; act=(Action)((int)act+1))
 					{
@@ -1136,7 +1034,6 @@ namespace TankGame
             else nextAction[side][id] = act;
             if (nextAction[side][id] > Left && previousActions[currentTurn - 1][side][id] > Left)
                 nextAction[side][id] = Stay;
-            //std::cerr<<"end of flyto"<<endl;
             return mp[id][posx][posy];
         }
         int posix(int id ,int side)
@@ -1145,16 +1042,12 @@ namespace TankGame
         }
         void defend(int id,int side)
         {
-            //std::cerr<<"Begin of defend()"<<id<<" "<<side<<endl;
             int posx = baseX[side] + ((side ^ id) ? 1 : -1);
             int posy = baseY[side];
             if( posx != tankX[side][id] || posy!=tankY[side][id])
             {
                 flyto(id,side,posx,posy);
-                //std::cerr<<"defend_before_spe_judge"<<id<<" "<<nextAction[side][id]<<endl;
                 spe_judge(id,side);
-
-                //std::cerr<<"defend_after_spe_judge"<<id<<" "<<nextAction[side][id]<<endl;
             }
             else
             {
@@ -1182,7 +1075,6 @@ namespace TankGame
                     }
                 }
             }
-            //std::cerr<<"End of defend"<<endl;
         }
         int burst(int id,int side)
         {
@@ -1193,7 +1085,7 @@ namespace TankGame
         {
             //破解对方消极防守
 
-            if(currentTurn > 4)
+            if(currentTurn > 6)
             for(int id = 0; id <2 ;++id)
             {
                 int tot = 0;
@@ -1205,7 +1097,7 @@ namespace TankGame
                             break;
                         else tot++;
                     }
-                if(tot>=3)
+                if(tot>=5)
                 {
                     std::cerr<<"DEFEND"<<id<<endl;
                     negativedefend[id] = true;
@@ -1217,7 +1109,7 @@ namespace TankGame
             {
                 if(burst(!id,!mySide) >=0 && burst(id,mySide) <= -1)  guard[id] = 1;
                 if(rush(id,mySide) <= rush(!id,!mySide)) guard[id] = 0;
-                if(negativedefend[!id] == true) guard[id] = 0;
+                if(negativedefend[!id] == true || negativedefend[id] == true) guard[id] = 0;
             }
             /*if(guard == 2 || !(tankAlive[mySide][0] && tankAlive[mySide][1]))//被打中后应该防守还是进攻?
             {
