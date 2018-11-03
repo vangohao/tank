@@ -210,8 +210,8 @@ namespace TankGame
 
 		//!//!//!// 以上变量设计为只读，不推荐进行修改 //!//!//!//
 
-        bool negativedefend[2][3]={};
-        int guard[2][2] ={};
+        bool negativedefend[3]={};
+        int guard[2] ={};
 
 		// 本回合双方即将执行的动作，需要手动填入
 		Action nextAction[sideCount][tankPerSide] = { { Invalid, Invalid },{ Invalid, Invalid } };
@@ -243,7 +243,7 @@ namespace TankGame
 				y = yy + dy[act%4];
             }
             if(act > Left && x == baseX[side] && y == baseY[side]) return false;
-            return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*side));
+            return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*mySide));
 		}
 
 		// 判断行为是否合法（出界或移动到非空格子算作非法）
@@ -307,7 +307,7 @@ namespace TankGame
 				y = yy + dy[act%4];
             }
             if(act > Left && x == baseX[side] && y == baseY[side]) return false;
-            return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*side));
+            return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*mySide));
 		}
 
 		// 判断 nextAction 中的所有行为是否都合法
@@ -348,8 +348,7 @@ namespace TankGame
 			if (!ActionIsValid())
             {
                 DebugPrint();
-                std::cerr<<nextAction[0][0]<<" "<<nextAction[0][1]<<endl;
-                std::cerr<<nextAction[1][0]<<" "<<nextAction[1][1]<<endl;
+                std::cerr<<nextAction[!mySide][0]<<" "<<nextAction[!mySide][1]<<endl;
                 std::cerr<<"INVALID_ACTION!"<<endl;
 				return false;
             }
@@ -961,7 +960,7 @@ namespace TankGame
 					if(nextAction[side][id] > Left)
 					{                                   //把外围的墙先开了 开内围的会给对手便利
 					    if((f0 == 1 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
-            ||      (f0 == 3 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                ||      (f0 == 3 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
                         {
                             if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[side]+1)
                                 nextAction[side][id] = RightShoot;
@@ -970,7 +969,7 @@ namespace TankGame
                             else nextAction[side][id] = Stay;
 					    }
 					    else if((f0 == 2 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
-            ||      (f0 == 4 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                            ||      (f0 == 4 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
                         {
                             if(CoordValid(x, y+1) && gameField[y+1][x] == Brick && !side)
                                 nextAction[side][id] = DownShoot;
@@ -980,10 +979,78 @@ namespace TankGame
 					    }
 					}
 				}
+				else{
+                    for(int i=0;i<4;i++){
+                        tankX[!side][0]+=dx[i];
+                        tankY[!side][0]+=dy[i];
+                        if(CoordValid(tankX[!side][0],tankY[!side][0]) && gameField[tankY[!side][0]][tankX[!side][0]] == None)
+                        {
+                                if(f0=face(id,side,x,y).second)
+                                {
+                                        if(nextAction[side][id] > Left)
+                                        {                                   //把外围的墙先开了 开内围的会给对手便利
+                                            if((f0 == 1 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
+                                                    ||      (f0 == 3 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                            {
+                                                if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[side]+1)
+                                                    nextAction[side][id] = RightShoot;
+                                                else if(CoordValid(x-1, y) && gameField[y][x-1] == Brick && x < baseX[side]-1)
+                                                    nextAction[side][id] = LeftShoot;
+                                                else nextAction[side][id] = Stay;
+                                            }
+                                            else if((f0 == 2 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
+                                                                ||      (f0 == 4 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                            {
+                                                if(CoordValid(x, y+1) && gameField[y+1][x] == Brick && !side)
+                                                    nextAction[side][id] = DownShoot;
+                                                else if(CoordValid(x, y-1) && gameField[y-1][x] == Brick && side)
+                                                    nextAction[side][id] = UpShoot;
+                                                else nextAction[side][id] = Stay;
+                                            }
+                                        }
+                                }
+                        }
+                        tankX[!side][0]-=dx[i];
+                        tankY[!side][0]-=dy[i];
+                    }
+                    for(int i=0;i<4;i++){
+                        tankX[!side][1]+=dx[i];
+                        tankY[!side][1]+=dy[i];
+                        if(CoordValid(tankX[!side][1],tankY[!side][1]) && gameField[tankY[!side][1]][tankX[!side][1]] == None)
+                        {
+                                if(f0=face(id,side,x,y).second)
+                                {
+                                        if(nextAction[side][id] > Left)
+                                        {                                   //把外围的墙先开了 开内围的会给对手便利
+                                            if((f0 == 1 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
+                                                    ||      (f0 == 3 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                            {
+                                                if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[side]+1)
+                                                    nextAction[side][id] = RightShoot;
+                                                else if(CoordValid(x-1, y) && gameField[y][x-1] == Brick && x < baseX[side]-1)
+                                                    nextAction[side][id] = LeftShoot;
+                                                else nextAction[side][id] = Stay;
+                                            }
+                                            else if((f0 == 2 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
+                                                                ||      (f0 == 4 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                            {
+                                                if(CoordValid(x, y+1) && gameField[y+1][x] == Brick && !side)
+                                                    nextAction[side][id] = DownShoot;
+                                                else if(CoordValid(x, y-1) && gameField[y-1][x] == Brick && side)
+                                                    nextAction[side][id] = UpShoot;
+                                                else nextAction[side][id] = Stay;
+                                            }
+                                        }
+                                }
+                        }
+                        tankX[!side][1]-=dx[i];
+                        tankY[!side][1]-=dy[i];
+                    }
+				}
 		}
 		vector<int> dfs(int side,int depth)
         {
-            //std::cerr<<guard[side][0]<<" "<<guard[side][1]<<endl;
+            //std::cerr<<guard[0]<<" "<<guard[1]<<endl;
             if(baseAlive[!side] == false && baseAlive[side]==true)
             {
                 return {-10000000 * (5-depth),-10000000 * (5-depth)};
@@ -996,8 +1063,8 @@ namespace TankGame
             {
                 return {-5000000 * (5-depth), -5000000 *(5-depth)};
             }
-            //if(depth == 3 || (depth==2 && guard[side][0] + guard[side][1] ==0))
-            if(depth ==1)
+            //if(depth == 3 || (depth==2 && guard[0] + guard[1] ==0))
+            if(depth ==2)
             {
                 //std::cerr<<depth<<endl;
              //   std::cerr<<rush(0,side)<<" "<<rush(1,side)<<"_____"<<endl;
@@ -1028,12 +1095,12 @@ namespace TankGame
                         nextAction[side][1] = act[1];
                         int tmp2= rush(0,!side);
                         spe_judge(0,!side);
-                        if(guard[side][0] == 1) defend(0,side);
-                        if(guard[side][1] == 1) defend(1,side);
-                        if(negativedefend[!side][0]) nextAction[!side][0] = Stay;
+                        if(guard[0] == 1) defend(0,side);
+                        if(guard[1] == 1) defend(1,side);
+                        if(negativedefend[0]) nextAction[!side][0] = Stay;
                         int tmp3 = rush(1,!side);
                         spe_judge(1,!side);
-                        if(negativedefend[!side][1]) nextAction[!side][1] = Stay;
+                        if(negativedefend[1]) nextAction[!side][1] = Stay;
                         Action tmpact[2];
                         tmpact[0] = nextAction[side][0];
                         tmpact[1] = nextAction[side][1];
@@ -1042,81 +1109,7 @@ namespace TankGame
       //std::cerr<<"depth"<<depth<<"act0 "<<tmpact[0]<<" act1 "<<tmpact[1]<<" act2 "<<act[2]<<" act3 "<<act[3]<<endl;
                         DoAction();
                         auto tmp = dfs(side, depth+1);
-                        if( tmp[0]*(!guard[side][0]) + tmp[1]*(!guard[side][1]) < best[0]*(!guard[side][0]) + best[1]*(!guard[side][1]) || (tmp[!guard[side]] == best[!guard[side]] && tmp2+tmp3>(best[2]+best[3])))
-                        {
-                            best[0] = tmp[0];
-                            bestact[0] = tmpact[0];
-                            best[1] = tmp[1];
-                            bestact[1] = tmpact[1];
-                            best[2] = tmp2;
-                            bestact[2] = act[2];
-                            best[3] = tmp3;
-                            bestact[3] = act[3];
-                        //    std::cerr<<"depth"<<depth<<"bestact0 "<<bestact[0]<<" bestact1 "<<bestact[1]<<" bestact2 "<<bestact[2]<<" bestact3 "<<bestact[3]<<endl;
-                        }
-                        Revert();
-                        if(guard[side][1]==1) break;
-                }
-                if(guard[side][0] == 1) break;
-            }
-            if(depth == 0)
-            {
-                nextAction[side][0] = bestact[0];
-                nextAction[side][1] = bestact[1];
-            }
-            return {best[0],best[1]};
-        }
-		vector<int> dfs_2(int side,int depth)
-        {
-            if(baseAlive[!side] == false && baseAlive[side]==true)
-            {
-                return {-10000000 * (5-depth),-10000000 * (5-depth)};
-            }
-            else if(baseAlive[side]==false && baseAlive[!side] == true)
-            {
-                return {1000000*depth,1000000*depth};
-            }
-            else if(baseAlive[side] == false && baseAlive[!side] ==false)
-            {
-                return {-5000000 * (5-depth), -5000000 *(5-depth)};
-            }
-            if(depth ==2)
-            {
-                return {rush(0,side),rush(1,side)};
-            }
-            int best[4]  = {1000000,1000000,1000000,1000000};
-            Action actcons[2][9] = {{Down,DownShoot,RightShoot,LeftShoot,UpShoot,Right,Left,Stay,Up},
-                                    {Up,UpShoot,RightShoot,LeftShoot,DownShoot,Right,Left,Stay,Down}};
-            if(rand()%100 >40)
-            {actcons[0][0]  = DownShoot; actcons[0][1] = Down;
-                actcons[1][0] = UpShoot;actcons[1][1] = Up;
-            }
-            Action bestact[4]={Stay,Stay,Stay,Stay};
-            Action act[4];
-            for(int i = 0;i<9;i++)
-            if(ActionIsValid_adopted(side,0,act[0] = actcons[side][i])){
-                for(int j = 0;j<9;j++)
-                if(ActionIsValid_adopted(side,1,act[1] = actcons[side][j]) )
-                {
-						//DebugPrint();
-						auto xxx = processor_1(!side);
-						int tmp2 = xxx[0];int tmp3 = xxx[1];
-                        if(negativedefend[!side][0]) nextAction[!side][0] = Stay;
-                        if(negativedefend[!side][1]) nextAction[!side][1] = Stay;
-                //std::cerr<<nextAction[0][0]<<" "<<nextAction[0][1]<<endl;
-                //std::cerr<<nextAction[1][0]<<" "<<nextAction[1][1]<<endl;
-                        nextAction[side][0] = act[0];
-                        nextAction[side][1] = act[1];
-                        if(guard[side][0] == 1) defend(0,side);
-                        if(guard[side][1] == 1) defend(1,side);
-                        Action tmpact[2];
-                        tmpact[0] = nextAction[side][0];
-                        tmpact[1] = nextAction[side][1];
-                        act[2] = nextAction[!side][0];
-                        act[3] = nextAction[!side][1];
-                        DoAction();
-                        auto tmp = dfs_2(side, depth+1);
-                        if( tmp[0]*(!guard[side][0]) + tmp[1]*(!guard[side][1]) < best[0]*(!guard[side][0]) + best[1]*(!guard[side][1]) || (tmp[!guard[side]] == best[!guard[side]] && tmp2+tmp3>(best[2]+best[3])))
+                        if( tmp[0]*(!guard[0]) + tmp[1]*(!guard[1]) < best[0]*(!guard[0]) + best[1]*(!guard[1]) || (tmp[!guard] == best[!guard] && tmp2+tmp3>(best[2]+best[3])))
                         {
                             best[0] = tmp[0];
                             bestact[0] = tmpact[0];
@@ -1129,9 +1122,9 @@ namespace TankGame
                            std::cerr<<"depth"<<depth<<"bestact0 "<<bestact[0]<<" bestact1 "<<bestact[1]<<" bestact2 "<<bestact[2]<<" bestact3 "<<bestact[3]<<endl;
                         }
                         Revert();
-                        if(guard[side][1]==1) break;
+                        if(guard[1]==1) break;
                 }
-                if(guard[side][0] == 1) break;
+                if(guard[0] == 1) break;
             }
             if(depth == 0)
             {
@@ -1264,7 +1257,7 @@ namespace TankGame
             if(side==0) return tankY[side][id] - 4;
             else return 4 - tankY[side][id];
         }
-        vector<int> processor_1(int side)
+        void processor()
         {
             //破解对方消极防守
 
@@ -1272,111 +1265,57 @@ namespace TankGame
             for(int id = 0; id <2 ;++id)
             {
                 int tot = 0;
-                if(tankX[!side][id] == posix(id,!side) && tankY[!side][id] == baseY[!side])
+                if(tankX[!mySide][id] == posix(id,!mySide) && tankY[!mySide][id] == baseY[!mySide])
                     for(int j = currentTurn - 1;j > 0; --j)
                     {
-                        if(previousActions[j][!side][id] > Stay &&
-                           previousActions[j][!side][id] <= Left)
+                        if(previousActions[j][!mySide][id] > Stay &&
+                           previousActions[j][!mySide][id] <= Left)
                             break;
                         else tot++;
                     }
                 if(tot>=3)
                 {
-                    //std::cerr<<"DEFEND"<<id<<endl;
-                    negativedefend[!side][id] = true;
-                    gameField[tankY[!side][id]][tankX[!side][id]] =Steel;
+                    std::cerr<<"DEFEND"<<id<<endl;
+                    negativedefend[id] = true;
+                    //tankAlive[!mySide][id] = false;
+                    gameField[tankY[!mySide][id]][tankX[!mySide][id]] =Steel;
                 }
             }
             for(int id = 0; id < 2; id++)
             {
-                if(burst(!id,!side) >=0 && burst(id,side) <= -1)  guard[side][id] = 1;
-                if(rush(id,side) <= rush(!id,!side)) guard[side][id] = 0;
-                if(negativedefend[!side][!id] == true) guard[side][id] = 0;
+                if(burst(!id,!mySide) >=0 && burst(id,mySide) <= -1)  guard[id] = 1;
+                if(rush(id,mySide) <= rush(!id,!mySide)) guard[id] = 0;
+                if(negativedefend[!id] == true) guard[id] = 0;
             }
-			//std::cerr<<"DEFEND"<<guard[side][0]<<" "<<guard[side][1]<<endl;
-			vector<int> xxx;
-			if(guard[side][0] && guard[side][1])
-			{
-				defend(0,side);
-				defend(1,side);
-			}
-			else
-			{
-                xxx = dfs(side,0);
-                //std::cerr<<"(DEFEND)DFS"<<xxx[0]<<" "<<xxx[1]<<endl;
-                //std::cerr<<nextAction[side][0]<<" "<<nextAction[side][1]<<endl;
+            /*if(guard == 2 || !(tankAlive[mySide][0] && tankAlive[mySide][1]))//被打中后应该防守还是进攻?
+            {
+                auto xxx = dfs(mySide,0);
+                std::cerr<<"DFS"<<xxx[0]<<" "<<xxx[1]<<endl;
+                std::cerr<<nextAction[mySide][0]<<" "<<nextAction[mySide][1]<<endl;
+                if(tankAlive[mySide][0]) spe_judge(0,mySide);
+                if(tankAlive[mySide][1]) spe_judge(1,mySide);
+            }
+            else*/
+            {
+                std::cerr<<"DEFEND"<<guard[0]<<" "<<guard[1]<<endl;
+                if(guard[0] && guard[1])
+                {
+                    defend(0,mySide);
+                    defend(1,mySide);
+                }
+                else
+                {
+                auto xxx = dfs(mySide,0);
+                //defend(guard,mySide);
+                std::cerr<<"(DEFEND)DFS"<<xxx[0]<<" "<<xxx[1]<<endl;
+                std::cerr<<nextAction[mySide][0]<<" "<<nextAction[mySide][1]<<endl;
                 for(int i = 0;i<2;++i)
                 {
-                    if(guard[side][i]==0) spe_judge(i,side);
+                    if(guard[i]==0) spe_judge(i,mySide);
                 }
-                //std::cerr<<"after-spe="<<nextAction[side][0]<<" "<<nextAction[side][1]<<endl;
-			}
-            //恢复坦克位置
-			if(tankAlive[0][0]) gameField[tankY[0][0]][tankX[0][0]] = Blue0;
-			if(tankAlive[0][1]) gameField[tankY[0][1]][tankX[0][1]] = Blue1;
-			if(tankAlive[1][0]) gameField[tankY[1][0]][tankX[1][0]] = Red0;
-			if(tankAlive[1][1]) gameField[tankY[1][1]][tankX[1][1]] = Red1;
-			return xxx;
-        }           //end of processor_1
-        vector<int> processor_2(int side)
-        {
-            //破解对方消极防守
-
-            if(currentTurn > 4)
-            for(int id = 0; id <2 ;++id)
-            {
-                int tot = 0;
-                if(tankX[!side][id] == posix(id,!side) && tankY[!side][id] == baseY[!side])
-                    for(int j = currentTurn - 1;j > 0; --j)
-                    {
-                        if(previousActions[j][!side][id] > Stay &&
-                           previousActions[j][!side][id] <= Left)
-                            break;
-                        else tot++;
-                    }
-                if(tot>=3)
-                {
-                    std::cerr<<"DEFEND(P2)"<<id<<endl;
-                    negativedefend[!side][id] = true;
-                    gameField[tankY[!side][id]][tankX[!side][id]] =Steel;
                 }
             }
-            for(int id = 0; id < 2; id++)
-            {
-                if(burst(!id,!side) >=0 && burst(id,side) <= -1)  guard[side][id] = 1;
-                if(rush(id,side) <= rush(!id,!side)) guard[side][id] = 0;
-                if(negativedefend[!side][!id] == true) guard[side][id] = 0;
-            }
-			std::cerr<<"DEFEND(P2)"<<guard[side][0]<<" "<<guard[side][1]<<endl;
-			vector<int> xxx;
-			if(guard[side][0] && guard[side][1])
-			{
-				defend(0,side);
-				defend(1,side);
-			}
-			else
-			{
-                xxx = dfs_2(side,0);
-                //defend(guard[side],side);
-                std::cerr<<"(P2)DFS"<<xxx[0]<<" "<<xxx[1]<<endl;
-                std::cerr<<nextAction[side][0]<<" "<<nextAction[side][1]<<endl;
-                for(int i = 0;i<2;++i)
-                {
-                    if(guard[side][i]==0) spe_judge(i,side);
-                }
-		        std::cerr<<"after-spe(P2)="<<nextAction[side][0]<<" "<<nextAction[side][1]<<endl;
-			}
-            //恢复坦克位置
-			gameField[tankY[0][0]][tankX[0][0]] = Blue0;
-			gameField[tankY[0][1]][tankX[0][1]] = Blue1;
-			gameField[tankY[1][0]][tankX[1][0]] = Red0;
-			gameField[tankY[1][1]][tankX[1][1]] = Red1;
-
-			//processor_1(!side);
-			nextAction[!side][0] = Stay;
-			nextAction[!side][1] = Stay;
-			return xxx;
-        }           //end of processor_2
+        }           //end of processor
 
         // end of Tank
 	};
@@ -1535,7 +1474,7 @@ int main()
 	{
 		string data, globaldata;
 		TankGame::ReadInput(cin, data, globaldata);
-		TankGame::field->processor_2(TankGame::field->mySide);
+		TankGame::field->processor();
 		TankGame::SubmitAndExit(TankGame::field->nextAction[TankGame::field->mySide][0], TankGame::field->nextAction[TankGame::field->mySide][1]);
 	}
 }
