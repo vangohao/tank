@@ -1,14 +1,14 @@
 /*
-10.27 10£º30 »ù±¾²ßÂÔ
-ÏÈrush»ùµØ
-¶ÔÒ»Ğ©Çé¿öÌØÅĞ£¬±ÈÈçĞèÒª¶ÔÉä£¬ĞèÒª¶ã±Ü
+10.27 10ï¼š30 åŸºæœ¬ç­–ç•¥
+å…ˆrushåŸºåœ°
+å¯¹ä¸€äº›æƒ…å†µç‰¹åˆ¤ï¼Œæ¯”å¦‚éœ€è¦å¯¹å°„ï¼Œéœ€è¦èº²é¿
 
 10.28 10:00
-¶ÔÖ»¸ôÒ»¶ÂÇ½µÄÇé¿ö½øĞĞÁË²¹³ä
-´¦ÀíÁËÖØµşÇé¿ö
+å¯¹åªéš”ä¸€å µå¢™çš„æƒ…å†µè¿›è¡Œäº†è¡¥å……
+å¤„ç†äº†é‡å æƒ…å†µ
 
-¶ÔÉä´¦ÀíĞèÒª¸üĞÂ µĞÈË¾­³£Áï×ß ¾ÍÀË·ÑÁËÒ»²½
-½¨ÒéÔÚÂíÉÏÅöÃæÊ±ÌáÇ°Éä»÷£¬µÚÒ»ÃûÊÇÖ±½Ó³å¹ıÀ´µÄ£¬ÆäËûÈËÃ»ÓĞÊÔ¹ı
+å¯¹å°„å¤„ç†éœ€è¦æ›´æ–° æ•Œäººç»å¸¸æºœèµ° å°±æµªè´¹äº†ä¸€æ­¥
+å»ºè®®åœ¨é©¬ä¸Šç¢°é¢æ—¶æå‰å°„å‡»ï¼Œç¬¬ä¸€åæ˜¯ç›´æ¥å†²è¿‡æ¥çš„ï¼Œå…¶ä»–äººæ²¡æœ‰è¯•è¿‡
 */
 #define _BOTZONE_ONLINE
 #include <stack>
@@ -39,7 +39,7 @@ namespace TankGame
 	using std::istream;
 
 #ifdef _MSC_VER
-#pragma region ³£Á¿¶¨ÒåºÍËµÃ÷
+#pragma region å¸¸é‡å®šä¹‰å’Œè¯´æ˜
 #endif
 
 	enum GameResult
@@ -78,17 +78,17 @@ namespace TankGame
 		UpShoot, RightShoot, DownShoot, LeftShoot
 	};
 
-	// ×ø±ê×óÉÏ½ÇÎªÔ­µã£¨0, 0£©£¬x ÖáÏòÓÒÑÓÉì£¬y ÖáÏòÏÂÑÓÉì
-	// Side£¨¶ÔÕ½Ë«·½£© - 0 ÎªÀ¶£¬1 Îªºì
-	// Tank£¨Ã¿·½µÄÌ¹¿Ë£© - 0 Îª 0 ºÅÌ¹¿Ë£¬1 Îª 1 ºÅÌ¹¿Ë
-	// Turn£¨»ØºÏ±àºÅ£© - ´Ó 1 ¿ªÊ¼
+	// åæ ‡å·¦ä¸Šè§’ä¸ºåŸç‚¹ï¼ˆ0, 0ï¼‰ï¼Œx è½´å‘å³å»¶ä¼¸ï¼Œy è½´å‘ä¸‹å»¶ä¼¸
+	// Sideï¼ˆå¯¹æˆ˜åŒæ–¹ï¼‰ - 0 ä¸ºè“ï¼Œ1 ä¸ºçº¢
+	// Tankï¼ˆæ¯æ–¹çš„å¦å…‹ï¼‰ - 0 ä¸º 0 å·å¦å…‹ï¼Œ1 ä¸º 1 å·å¦å…‹
+	// Turnï¼ˆå›åˆç¼–å·ï¼‰ - ä» 1 å¼€å§‹
 
 	const int fieldHeight = 9, fieldWidth = 9, sideCount = 2, tankPerSide = 2;
 
-	// »ùµØµÄºá×ø±ê
+	// åŸºåœ°çš„æ¨ªåæ ‡
 	const int baseX[sideCount] = { fieldWidth / 2, fieldWidth / 2 };
 
-	// »ùµØµÄ×İ×ø±ê
+	// åŸºåœ°çš„çºµåæ ‡
 	const int baseY[sideCount] = { 0, fieldHeight - 1 };
 
 	const int dx[4] = { 0, 1, 0, -1 }, dy[4] = { -1, 0, 1, 0 };
@@ -99,7 +99,7 @@ namespace TankGame
 #ifdef _MSC_VER
 #pragma endregion
 
-#pragma region ¹¤¾ßº¯ÊıºÍÀà
+#pragma region å·¥å…·å‡½æ•°å’Œç±»
 #endif
 
 	inline bool ActionIsMove(Action x)
@@ -122,11 +122,11 @@ namespace TankGame
 		return x >= 0 && x < fieldWidth && y >= 0 && y < fieldHeight;
 	}
 
-	// ÅĞ¶Ï item ÊÇ²»ÊÇµşÔÚÒ»ÆğµÄ¶à¸öÌ¹¿Ë
+	// åˆ¤æ–­ item æ˜¯ä¸æ˜¯å åœ¨ä¸€èµ·çš„å¤šä¸ªå¦å…‹
 	inline bool HasMultipleTank(FieldItem item)
 	{
-		// Èç¹û¸ñ×ÓÉÏÖ»ÓĞÒ»¸öÎï¼ş£¬ÄÇÃ´ item µÄÖµÊÇ 2 µÄÃİ»ò 0
-		// ¶ÔÓÚÊı×Ö x£¬x & (x - 1) == 0 µ±ÇÒ½öµ± x ÊÇ 2 µÄÃİ»ò 0
+		// å¦‚æœæ ¼å­ä¸Šåªæœ‰ä¸€ä¸ªç‰©ä»¶ï¼Œé‚£ä¹ˆ item çš„å€¼æ˜¯ 2 çš„å¹‚æˆ– 0
+		// å¯¹äºæ•°å­— xï¼Œx & (x - 1) == 0 å½“ä¸”ä»…å½“ x æ˜¯ 2 çš„å¹‚æˆ– 0
 		return !!(item & (item - 1));
 	}
 
@@ -140,7 +140,7 @@ namespace TankGame
 		return item == Blue0 || item == Red0 ? 0 : 1;
 	}
 
-	// »ñµÃ¶¯×÷µÄ·½Ïò
+	// è·å¾—åŠ¨ä½œçš„æ–¹å‘
 	inline int ExtractDirectionFromAction(Action x)
 	{
 		if (x >= Up)
@@ -148,12 +148,12 @@ namespace TankGame
 		return -1;
 	}
 
-	// Îï¼şÏûÊ§µÄ¼ÇÂ¼£¬ÓÃÓÚ»ØÍË
+	// ç‰©ä»¶æ¶ˆå¤±çš„è®°å½•ï¼Œç”¨äºå›é€€
 	struct DisappearLog
 	{
 		FieldItem item;
 
-		// µ¼ÖÂÆäÏûÊ§µÄ»ØºÏµÄ±àºÅ
+		// å¯¼è‡´å…¶æ¶ˆå¤±çš„å›åˆçš„ç¼–å·
 		int turn;
 
 		int x, y;
@@ -172,48 +172,48 @@ namespace TankGame
 #ifdef _MSC_VER
 #pragma endregion
 
-#pragma region TankField Ö÷ÒªÂß¼­Àà
+#pragma region TankField ä¸»è¦é€»è¾‘ç±»
 #endif
 
 	class TankField
 	{
 	public:
-		//!//!//!// ÒÔÏÂ±äÁ¿Éè¼ÆÎªÖ»¶Á£¬²»ÍÆ¼ö½øĞĞĞŞ¸Ä //!//!//!//
+		//!//!//!// ä»¥ä¸‹å˜é‡è®¾è®¡ä¸ºåªè¯»ï¼Œä¸æ¨èè¿›è¡Œä¿®æ”¹ //!//!//!//
 
-		// ÓÎÏ·³¡µØÉÏµÄÎï¼ş£¨Ò»¸ö¸ñ×ÓÉÏ¿ÉÄÜÓĞ¶à¸öÌ¹¿Ë£©
+		// æ¸¸æˆåœºåœ°ä¸Šçš„ç‰©ä»¶ï¼ˆä¸€ä¸ªæ ¼å­ä¸Šå¯èƒ½æœ‰å¤šä¸ªå¦å…‹ï¼‰
 		FieldItem gameField[fieldHeight][fieldWidth] = {};
 
-		// Ì¹¿ËÊÇ·ñ´æ»î
+		// å¦å…‹æ˜¯å¦å­˜æ´»
 		bool tankAlive[sideCount][tankPerSide] = { { true, true },{ true, true } };
 
-		// »ùµØÊÇ·ñ´æ»î
+		// åŸºåœ°æ˜¯å¦å­˜æ´»
 		bool baseAlive[sideCount] = { true, true };
 
-		// Ì¹¿Ëºá×ø±ê£¬-1±íÊ¾Ì¹¿ËÒÑÕ¨
+		// å¦å…‹æ¨ªåæ ‡ï¼Œ-1è¡¨ç¤ºå¦å…‹å·²ç‚¸
 		int tankX[sideCount][tankPerSide] = {
 			{ fieldWidth / 2 - 2, fieldWidth / 2 + 2 },{ fieldWidth / 2 + 2, fieldWidth / 2 - 2 }
 		};
 
-		// Ì¹¿Ë×İ×ø±ê£¬-1±íÊ¾Ì¹¿ËÒÑÕ¨
+		// å¦å…‹çºµåæ ‡ï¼Œ-1è¡¨ç¤ºå¦å…‹å·²ç‚¸
 		int tankY[sideCount][tankPerSide] = { { 0, 0 },{ fieldHeight - 1, fieldHeight - 1 } };
 
-		// µ±Ç°»ØºÏ±àºÅ
+		// å½“å‰å›åˆç¼–å·
 		int currentTurn = 1;
 
-		// ÎÒÊÇÄÄÒ»·½
+		// æˆ‘æ˜¯å“ªä¸€æ–¹
 		int mySide;
 
-		// ÓÃÓÚ»ØÍËµÄlog
+		// ç”¨äºå›é€€çš„log
 		stack<DisappearLog> logs;
 
 		Action previousActions[200][sideCount][tankPerSide] = { { { Stay, Stay },{ Stay, Stay } } };
 
-		//!//!//!// ÒÔÉÏ±äÁ¿Éè¼ÆÎªÖ»¶Á£¬²»ÍÆ¼ö½øĞĞĞŞ¸Ä //!//!//!//
+		//!//!//!// ä»¥ä¸Šå˜é‡è®¾è®¡ä¸ºåªè¯»ï¼Œä¸æ¨èè¿›è¡Œä¿®æ”¹ //!//!//!//
 
-        bool negativedefend[2][3]={};
-        int guard[2][2] ={};
+        bool negativedefend[3]={};
+        int guard[2] ={};
 
-		// ±¾»ØºÏË«·½¼´½«Ö´ĞĞµÄ¶¯×÷£¬ĞèÒªÊÖ¶¯ÌîÈë
+		// æœ¬å›åˆåŒæ–¹å³å°†æ‰§è¡Œçš„åŠ¨ä½œï¼Œéœ€è¦æ‰‹åŠ¨å¡«å…¥
 		Action nextAction[sideCount][tankPerSide] = { { Invalid, Invalid },{ Invalid, Invalid } };
 
 		bool ActionIsValid(int side, int tank, Action act,int xx=-1,int yy=-1)
@@ -226,7 +226,7 @@ namespace TankGame
 			if (act == Invalid)
 				return false;
             //cout<<previousActions[currentTurn - 1][side][tank]<<endl;
-			if (act > Left && previousActions[currentTurn - 1][side][tank] > Left) // Á¬ĞøÁ½»ØºÏÉä»÷
+			if (act > Left && previousActions[currentTurn - 1][side][tank] > Left) // è¿ç»­ä¸¤å›åˆå°„å‡»
 				return false;
 
             if (act == Stay || act > Left)
@@ -243,11 +243,11 @@ namespace TankGame
 				y = yy + dy[act%4];
             }
             if(act > Left && x == baseX[side] && y == baseY[side]) return false;
-            return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*side));
+            return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*mySide));
 		}
 
-		// ÅĞ¶ÏĞĞÎªÊÇ·ñºÏ·¨£¨³ö½ç»òÒÆ¶¯µ½·Ç¿Õ¸ñ×ÓËã×÷·Ç·¨£©
-		// Î´¿¼ÂÇÌ¹¿ËÊÇ·ñ´æ»î
+		// åˆ¤æ–­è¡Œä¸ºæ˜¯å¦åˆæ³•ï¼ˆå‡ºç•Œæˆ–ç§»åŠ¨åˆ°éç©ºæ ¼å­ç®—ä½œéæ³•ï¼‰
+		// æœªè€ƒè™‘å¦å…‹æ˜¯å¦å­˜æ´»
 		bool ActionIsValid_adopted(int side, int tank, Action act,int xx=-1,int yy=-1)
 		{
 		    if (xx==-1 && yy==-1)
@@ -258,7 +258,7 @@ namespace TankGame
 			if (act == Invalid)
 				return false;
             //cout<<previousActions[currentTurn - 1][side][tank]<<endl;
-			if (act > Left && previousActions[currentTurn - 1][side][tank] > Left) // Á¬ĞøÁ½»ØºÏÉä»÷
+			if (act > Left && previousActions[currentTurn - 1][side][tank] > Left) // è¿ç»­ä¸¤å›åˆå°„å‡»
 				return false;
 
             if (act == Stay)
@@ -307,11 +307,11 @@ namespace TankGame
 				y = yy + dy[act%4];
             }
             if(act > Left && x == baseX[side] && y == baseY[side]) return false;
-            return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*side));
+            return   CoordValid(x,y) && gameField[y][x] != Steel && gameField[y][x] != (Brick<<(3+(!tank) + 2*mySide));
 		}
 
-		// ÅĞ¶Ï nextAction ÖĞµÄËùÓĞĞĞÎªÊÇ·ñ¶¼ºÏ·¨
-		// ºöÂÔµôÎ´´æ»îµÄÌ¹¿Ë
+		// åˆ¤æ–­ nextAction ä¸­çš„æ‰€æœ‰è¡Œä¸ºæ˜¯å¦éƒ½åˆæ³•
+		// å¿½ç•¥æ‰æœªå­˜æ´»çš„å¦å…‹
 		bool ActionIsValid()
 		{
 			for (int side = 0; side < sideCount; side++)
@@ -341,33 +341,32 @@ namespace TankGame
 		}
 	public:
 
-		// Ö´ĞĞ nextAction ÖĞÖ¸¶¨µÄĞĞÎª²¢½øÈëÏÂÒ»»ØºÏ£¬·µ»ØĞĞÎªÊÇ·ñºÏ·¨
+		// æ‰§è¡Œ nextAction ä¸­æŒ‡å®šçš„è¡Œä¸ºå¹¶è¿›å…¥ä¸‹ä¸€å›åˆï¼Œè¿”å›è¡Œä¸ºæ˜¯å¦åˆæ³•
 		bool DoAction()
 		{
 		    //std::cerr<<"DOACTION"<<currentTurn<<endl;
 			if (!ActionIsValid())
             {
                 DebugPrint();
-                std::cerr<<nextAction[0][0]<<" "<<nextAction[0][1]<<endl;
-                std::cerr<<nextAction[1][0]<<" "<<nextAction[1][1]<<endl;
+                std::cerr<<nextAction[!mySide][0]<<" "<<nextAction[!mySide][1]<<endl;
                 std::cerr<<"INVALID_ACTION!"<<endl;
 				return false;
             }
 
-			// 1 ÒÆ¶¯
+			// 1 ç§»åŠ¨
 			for (int side = 0; side < sideCount; side++)
 				for (int tank = 0; tank < tankPerSide; tank++)
 				{
 					Action act = nextAction[side][tank];
 
-					// ±£´æ¶¯×÷
+					// ä¿å­˜åŠ¨ä½œ
 					previousActions[currentTurn][side][tank] = act;
 					if (tankAlive[side][tank] && ActionIsMove(act))
 					{
 						int &x = tankX[side][tank], &y = tankY[side][tank];
 						FieldItem &items = gameField[y][x];
 
-						// ¼ÇÂ¼ Log
+						// è®°å½• Log
 						DisappearLog log;
 						log.x = x;
 						log.y = y;
@@ -375,17 +374,17 @@ namespace TankGame
 						log.turn = currentTurn;
 						logs.push(log);
 
-						// ±ä¸ü×ø±ê
+						// å˜æ›´åæ ‡
 						x += dx[act];
 						y += dy[act];
 
-						// ¸ü»»±ê¼Ç£¨×¢Òâ¸ñ×Ó¿ÉÄÜÓĞ¶à¸öÌ¹¿Ë£©
+						// æ›´æ¢æ ‡è®°ï¼ˆæ³¨æ„æ ¼å­å¯èƒ½æœ‰å¤šä¸ªå¦å…‹ï¼‰
 						gameField[y][x] |= log.item;
 						items &= ~log.item;
 					}
 				}
 
-			// 2 Éä¡á»÷
+			// 2 å°„â™‚å‡»
 			set<DisappearLog> itemsToBeDestroyed;
 			for (int side = 0; side < sideCount; side++)
 				for (int tank = 0; tank < tankPerSide; tank++)
@@ -405,22 +404,22 @@ namespace TankGame
 							FieldItem items = gameField[y][x];
 							if (items != None)
 							{
-								// ¶ÔÉäÅĞ¶Ï
+								// å¯¹å°„åˆ¤æ–­
 								if (items >= Blue0 &&
 									!hasMultipleTankWithMe && !HasMultipleTank(items))
 								{
-									// ×Ô¼ºÕâÀïºÍÉäµ½µÄÄ¿±ê¸ñ×Ó¶¼Ö»ÓĞÒ»¸öÌ¹¿Ë
+									// è‡ªå·±è¿™é‡Œå’Œå°„åˆ°çš„ç›®æ ‡æ ¼å­éƒ½åªæœ‰ä¸€ä¸ªå¦å…‹
 									Action theirAction = nextAction[GetTankSide(items)][GetTankID(items)];
 									if (ActionIsShoot(theirAction) &&
 										ActionDirectionIsOpposite(act, theirAction))
 									{
-										// ¶øÇÒÎÒ·½ºÍ¶Ô·½µÄÉä»÷·½ÏòÊÇ·´µÄ
-										// ÄÇÃ´¾ÍºöÊÓÕâ´ÎÉä»÷
+										// è€Œä¸”æˆ‘æ–¹å’Œå¯¹æ–¹çš„å°„å‡»æ–¹å‘æ˜¯åçš„
+										// é‚£ä¹ˆå°±å¿½è§†è¿™æ¬¡å°„å‡»
 										break;
 									}
 								}
 
-								// ±ê¼ÇÕâĞ©Îï¼şÒª±»´İ»ÙÁË£¨·ÀÖ¹ÖØ¸´´İ»Ù£©
+								// æ ‡è®°è¿™äº›ç‰©ä»¶è¦è¢«æ‘§æ¯äº†ï¼ˆé˜²æ­¢é‡å¤æ‘§æ¯ï¼‰
 								for (int mask = 1; mask <= Red1; mask <<= 1)
 									if (items & mask)
 									{
@@ -476,7 +475,7 @@ namespace TankGame
 			return true;
 		}
 
-		// »Øµ½ÉÏÒ»»ØºÏ
+		// å›åˆ°ä¸Šä¸€å›åˆ
 		bool Revert()
 		{
 		    //std::cerr<<"REVERT"<<currentTurn<<endl;
@@ -524,7 +523,7 @@ namespace TankGame
 			return true;
 		}
 
-		// ÓÎÏ·ÊÇ·ñ½áÊø£¿Ë­Ó®ÁË£¿
+		// æ¸¸æˆæ˜¯å¦ç»“æŸï¼Ÿè°èµ¢äº†ï¼Ÿ
 		GameResult GetGameResult()
 		{
 			bool fail[sideCount] = {};
@@ -538,7 +537,7 @@ namespace TankGame
 			return Blue;
 		}
 
-		// Èı¸ö int ±íÊ¾³¡µØ 01 ¾ØÕó£¨Ã¿¸ö int ÓÃ 27 Î»±íÊ¾ 3 ĞĞ£©
+		// ä¸‰ä¸ª int è¡¨ç¤ºåœºåœ° 01 çŸ©é˜µï¼ˆæ¯ä¸ª int ç”¨ 27 ä½è¡¨ç¤º 3 è¡Œï¼‰
 		TankField(int hasBrick[3], int mySide) : mySide(mySide)
 		{
 			for (int i = 0; i < 3; i++)
@@ -563,7 +562,7 @@ namespace TankGame
 			gameField[baseY[0] + 1][baseX[0]] = gameField[baseY[1] - 1][baseX[1]] = Steel;
 		}
 
-		// ´òÓ¡³¡µØ
+		// æ‰“å°åœºåœ°
 		void DebugPrint()
 		{
 #ifdef _BOTZONE_ONLINE
@@ -572,9 +571,9 @@ namespace TankGame
 			const char* boldHR = "==============================";
 			const char* slimHR = "------------------------------";
 			std::cerr << boldHR << endl
-				<< "Í¼Àı£º" << endl
-				<< ". - ¿Õ\t# - ×©\t% - ¸Ö\t* - »ùµØ\t@ - ¶à¸öÌ¹¿Ë" << endl
-				<< "b - À¶0\tB - À¶1\tr - ºì0\tR - ºì1" << endl
+				<< "å›¾ä¾‹ï¼š" << endl
+				<< ". - ç©º\t# - ç –\t% - é’¢\t* - åŸºåœ°\t@ - å¤šä¸ªå¦å…‹" << endl
+				<< "b - è“0\tB - è“1\tr - çº¢0\tR - çº¢1" << endl
 				<< slimHR << endl;
 			for (int y = 0; y < fieldHeight; y++)
 			{
@@ -621,7 +620,7 @@ namespace TankGame
 					std::cerr << ",tank" << tank << boolean2String[tankAlive[side][tank]];
 				std::cerr << endl;
 			}
-			std::cerr << "currentTurn" << currentTurn << "£¬";
+			std::cerr << "currentTurn" << currentTurn << "ï¼Œ";
 			GameResult result = GetGameResult();
 			if (result == -2)
 				std::cerr <<"Going" << endl;
@@ -776,7 +775,7 @@ namespace TankGame
 				if(flag > zongflag) zongflag = flag;
 				if(f0 > zongf0) zongf0 = f0;
 		    }
-		    if(tankAlive[!side][0]&& y==tankY[!side][0]){   //É¾³ıÁË3¸öelse
+		    if(tankAlive[!side][0]&& y==tankY[!side][0]){   //åˆ é™¤äº†3ä¸ªelse
 		        int flag=2;
 				int f0 = 2;
 				int c = 0;
@@ -841,7 +840,6 @@ namespace TankGame
 		void spe_judge(int id,int side){
                 int flag,f0;
                 int x=tankX[side][id],y=tankY[side][id];
-                //ÅĞ¶ÏÊÇ·ñ¿ÉÖ±½ÓÉäËÀ¶ÔÃæ»ùµØ,labelÎªfalse±íÊ¾¿ÉÒÔ
                 bool label = true;
                 flag = face(id,side,x,y).first;
                 if( x == baseX[!side])
@@ -879,7 +877,8 @@ namespace TankGame
                     }
                 }
                 if(label ==false) {}
-                else if(flag){                   //¿ÉÒÔºÍ¶ÔÊÖ¶ÔÉä ¼ÙÈçÃ»±ØÒª¾ÍÏÈrush
+                else if(flag){
+                    //cout<<"spe begin "<<nextAction[side][id]<<endl;
                     if(previousActions[currentTurn - 1][side][id] <= Left){
                          if(flag == 1){
                             if(nextAction[side][id] !=Left && nextAction[side][id] != Right)
@@ -892,7 +891,7 @@ namespace TankGame
                        else if(flag == 2){
                             if(nextAction[side][id] !=Up && nextAction[side][id] != Down)
                                 nextAction[side][id] = x>tankX[!side][0] ? LeftShoot : RightShoot;
-                            if(x == tankX[!side][0] && rand()%100 > 50)                          //ÖØµşÊ±Ô¤ÅĞ³¯¶ÔÊÖrushµÄ·½ÏòÉä»÷
+                            if(x == tankX[!side][0] && rand()%100 > 50)
                                 nextAction[side][id] = side ?  DownShoot : UpShoot;
                         }
                         else if(flag == 4){
@@ -902,7 +901,7 @@ namespace TankGame
                                 nextAction[side][id] = side ?  DownShoot : UpShoot;
                         }
                     }
-                    else{               //ÎÒ²»ÄÜ ¶Ô·½¿ÉÒÔ ¾Í¾¡Á¿¶ã±Ü
+                    else{
                         if(previousActions[currentTurn - 1][!side][0] <= Left){
                             if(flag == 1){
                                 int tmp= x>baseX[side]? -1 : 1;
@@ -935,7 +934,7 @@ namespace TankGame
                         }
                     }
                 }
-                else if( nextAction[side][id] <=Left &&nextAction[side][id] >=Up){                //ÏÂÒ»²½»áÅöµ½¶ÔÊÖ
+                else if( nextAction[side][id] <=Left &&nextAction[side][id] >=Up){
                     x=tankX[side][id] + dx[nextAction[side][id]];
                     y=tankY[side][id] + dy[nextAction[side][id]];
                     if(flag = face(id,side,x,y).first){
@@ -954,19 +953,32 @@ namespace TankGame
                     }
                 }
 
-				 //ºÍ¶ÔÊÖÃæ¶ÔÃæÖ»¸ôÁËÒ»¶ÂÇ½
+				 //ï¿½Í¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Ç½
 				else if(f0 = face(id,side,x,y).second)
 				{
-				    //cout<<nextAction[side][id]<<endl;
+				    //cout<<"begin spe "<<nextAction[side][id]<<endl;
 					if(nextAction[side][id] > Left)
-					{                                   //°ÑÍâÎ§µÄÇ½ÏÈ¿ªÁË ¿ªÄÚÎ§µÄ»á¸ø¶ÔÊÖ±ãÀû
+					{
 					    if((f0 == 1 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
             ||      (f0 == 3 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
                         {
-                            if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[side]+1)
-                                nextAction[side][id] = RightShoot;
-                            else if(CoordValid(x-1, y) && gameField[y][x-1] == Brick && x < baseX[side]-1)
-                                nextAction[side][id] = LeftShoot;
+                            //cout<<"begin spe "<<nextAction[side][id]<<endl;
+                            if(x > baseX[side] && abs( y - baseY[side]) < 4){
+                                int tmp=1;
+                                while(CoordValid(x-tmp, y) && gameField[y][x-tmp] == None)
+                                    tmp++;
+                                if( CoordValid(x-tmp, y) && gameField[y][x-tmp] == Brick )
+                                    nextAction[side][id] = LeftShoot;
+                                else nextAction[side][id] = Stay;
+                            }
+                            else if(x < baseX[side] && abs( y - baseY[side]) < 4){
+                                int tmp=1;
+                                while(CoordValid(x+tmp, y) && gameField[y][x+tmp] == None)
+                                    tmp++;
+                                if( CoordValid(x-tmp, y) && gameField[y][x-tmp] == Brick )
+                                    nextAction[side][id] = RightShoot;
+                                else nextAction[side][id] =Stay;
+                            }
                             else nextAction[side][id] = Stay;
 					    }
 					    else if((f0 == 2 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
@@ -979,11 +991,81 @@ namespace TankGame
                             else nextAction[side][id] = Stay;
 					    }
 					}
+					//cout<<"end spe "<<nextAction[side][id]<<endl;
+				}
+				else{
+                    for(int i=0;i<4;i++){
+                        tankX[!side][0]+=dx[i];
+                        tankY[!side][0]+=dy[i];
+                        if(CoordValid(tankX[!side][0],tankY[!side][0]) && gameField[tankY[!side][0]][tankX[!side][0]] == None)
+                        {
+                                if(f0=face(id,side,x,y).second)
+                                {
+                                        if(nextAction[side][id] > Left)
+                                        {                                   //æŠŠå¤–å›´çš„å¢™å…ˆå¼€äº† å¼€å†…å›´çš„ä¼šç»™å¯¹æ‰‹ä¾¿åˆ©
+                                            if((f0 == 1 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
+                                                    ||      (f0 == 3 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                            {
+                                                if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[side]+1)
+                                                    nextAction[side][id] = RightShoot;
+                                                else if(CoordValid(x-1, y) && gameField[y][x-1] == Brick && x < baseX[side]-1)
+                                                    nextAction[side][id] = LeftShoot;
+                                                else nextAction[side][id] = Stay;
+                                            }
+                                            else if((f0 == 2 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
+                                                                ||      (f0 == 4 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                            {
+                                                if(CoordValid(x, y+1) && gameField[y+1][x] == Brick && !side)
+                                                    nextAction[side][id] = DownShoot;
+                                                else if(CoordValid(x, y-1) && gameField[y-1][x] == Brick && side)
+                                                    nextAction[side][id] = UpShoot;
+                                                else nextAction[side][id] = Stay;
+                                            }
+                                        }
+                                }
+                        }
+                        tankX[!side][0]-=dx[i];
+                        tankY[!side][0]-=dy[i];
+                    }
+                    for(int i=0;i<4;i++){
+                        tankX[!side][1]+=dx[i];
+                        tankY[!side][1]+=dy[i];
+                        if(CoordValid(tankX[!side][1],tankY[!side][1]) && gameField[tankY[!side][1]][tankX[!side][1]] == None)
+                        {
+                                if(f0=face(id,side,x,y).second)
+                                {
+                                        if(nextAction[side][id] > Left)
+                                        {                                   //æŠŠå¤–å›´çš„å¢™å…ˆå¼€äº† å¼€å†…å›´çš„ä¼šç»™å¯¹æ‰‹ä¾¿åˆ©
+                                            if((f0 == 1 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
+                                                    ||      (f0 == 3 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                            {
+                                                if(CoordValid(x+1, y) && gameField[y][x+1] == Brick && x > baseX[side]+1)
+                                                    nextAction[side][id] = RightShoot;
+                                                else if(CoordValid(x-1, y) && gameField[y][x-1] == Brick && x < baseX[side]-1)
+                                                    nextAction[side][id] = LeftShoot;
+                                                else nextAction[side][id] = Stay;
+                                            }
+                                            else if((f0 == 2 && isacta2b(nextAction[side][id],x,y,tankX[!side][0],tankY[!side][0]))
+                                                                ||      (f0 == 4 && isacta2b(nextAction[side][id],x,y,tankX[!side][1],tankY[!side][1])))
+                                            {
+                                                if(CoordValid(x, y+1) && gameField[y+1][x] == Brick && !side)
+                                                    nextAction[side][id] = DownShoot;
+                                                else if(CoordValid(x, y-1) && gameField[y-1][x] == Brick && side)
+                                                    nextAction[side][id] = UpShoot;
+                                                else nextAction[side][id] = Stay;
+                                            }
+                                        }
+                                }
+                        }
+                        tankX[!side][1]-=dx[i];
+                        tankY[!side][1]-=dy[i];
+                    }
 				}
 		}
+
 		vector<int> dfs(int side,int depth)
         {
-            //std::cerr<<guard[side][0]<<" "<<guard[side][1]<<endl;
+            //std::cerr<<guard[0]<<" "<<guard[1]<<endl;
             if(baseAlive[!side] == false && baseAlive[side]==true)
             {
                 return {-10000000 * (5-depth),-10000000 * (5-depth)};
@@ -996,8 +1078,8 @@ namespace TankGame
             {
                 return {-5000000 * (5-depth), -5000000 *(5-depth)};
             }
-            //if(depth == 3 || (depth==2 && guard[side][0] + guard[side][1] ==0))
-            if(depth ==1)
+            //if(depth == 3 || (depth==2 && guard[0] + guard[1] ==0))
+            if(depth ==2)
             {
                 //std::cerr<<depth<<endl;
              //   std::cerr<<rush(0,side)<<" "<<rush(1,side)<<"_____"<<endl;
@@ -1028,12 +1110,12 @@ namespace TankGame
                         nextAction[side][1] = act[1];
                         int tmp2= rush(0,!side);
                         spe_judge(0,!side);
-                        if(guard[side][0] == 1) defend(0,side);
-                        if(guard[side][1] == 1) defend(1,side);
-                        if(negativedefend[!side][0]) nextAction[!side][0] = Stay;
+                        if(guard[0] == 1) defend(0,side);
+                        if(guard[1] == 1) defend(1,side);
+                        if(negativedefend[0]) nextAction[!side][0] = Stay;
                         int tmp3 = rush(1,!side);
                         spe_judge(1,!side);
-                        if(negativedefend[!side][1]) nextAction[!side][1] = Stay;
+                        if(negativedefend[1]) nextAction[!side][1] = Stay;
                         Action tmpact[2];
                         tmpact[0] = nextAction[side][0];
                         tmpact[1] = nextAction[side][1];
@@ -1042,81 +1124,7 @@ namespace TankGame
       //std::cerr<<"depth"<<depth<<"act0 "<<tmpact[0]<<" act1 "<<tmpact[1]<<" act2 "<<act[2]<<" act3 "<<act[3]<<endl;
                         DoAction();
                         auto tmp = dfs(side, depth+1);
-                        if( tmp[0]*(!guard[side][0]) + tmp[1]*(!guard[side][1]) < best[0]*(!guard[side][0]) + best[1]*(!guard[side][1]) || (tmp[!guard[side]] == best[!guard[side]] && tmp2+tmp3>(best[2]+best[3])))
-                        {
-                            best[0] = tmp[0];
-                            bestact[0] = tmpact[0];
-                            best[1] = tmp[1];
-                            bestact[1] = tmpact[1];
-                            best[2] = tmp2;
-                            bestact[2] = act[2];
-                            best[3] = tmp3;
-                            bestact[3] = act[3];
-                        //    std::cerr<<"depth"<<depth<<"bestact0 "<<bestact[0]<<" bestact1 "<<bestact[1]<<" bestact2 "<<bestact[2]<<" bestact3 "<<bestact[3]<<endl;
-                        }
-                        Revert();
-                        if(guard[side][1]==1) break;
-                }
-                if(guard[side][0] == 1) break;
-            }
-            if(depth == 0)
-            {
-                nextAction[side][0] = bestact[0];
-                nextAction[side][1] = bestact[1];
-            }
-            return {best[0],best[1]};
-        }
-		vector<int> dfs_2(int side,int depth)
-        {
-            if(baseAlive[!side] == false && baseAlive[side]==true)
-            {
-                return {-10000000 * (5-depth),-10000000 * (5-depth)};
-            }
-            else if(baseAlive[side]==false && baseAlive[!side] == true)
-            {
-                return {1000000*depth,1000000*depth};
-            }
-            else if(baseAlive[side] == false && baseAlive[!side] ==false)
-            {
-                return {-5000000 * (5-depth), -5000000 *(5-depth)};
-            }
-            if(depth ==2)
-            {
-                return {rush(0,side),rush(1,side)};
-            }
-            int best[4]  = {1000000,1000000,1000000,1000000};
-            Action actcons[2][9] = {{Down,DownShoot,RightShoot,LeftShoot,UpShoot,Right,Left,Stay,Up},
-                                    {Up,UpShoot,RightShoot,LeftShoot,DownShoot,Right,Left,Stay,Down}};
-            if(rand()%100 >40)
-            {actcons[0][0]  = DownShoot; actcons[0][1] = Down;
-                actcons[1][0] = UpShoot;actcons[1][1] = Up;
-            }
-            Action bestact[4]={Stay,Stay,Stay,Stay};
-            Action act[4];
-            for(int i = 0;i<9;i++)
-            if(ActionIsValid_adopted(side,0,act[0] = actcons[side][i])){
-                for(int j = 0;j<9;j++)
-                if(ActionIsValid_adopted(side,1,act[1] = actcons[side][j]) )
-                {
-						//DebugPrint();
-						auto xxx = processor_1(!side);
-						int tmp2 = xxx[0];int tmp3 = xxx[1];
-                        if(negativedefend[!side][0]) nextAction[!side][0] = Stay;
-                        if(negativedefend[!side][1]) nextAction[!side][1] = Stay;
-                //std::cerr<<nextAction[0][0]<<" "<<nextAction[0][1]<<endl;
-                //std::cerr<<nextAction[1][0]<<" "<<nextAction[1][1]<<endl;
-                        nextAction[side][0] = act[0];
-                        nextAction[side][1] = act[1];
-                        if(guard[side][0] == 1) defend(0,side);
-                        if(guard[side][1] == 1) defend(1,side);
-                        Action tmpact[2];
-                        tmpact[0] = nextAction[side][0];
-                        tmpact[1] = nextAction[side][1];
-                        act[2] = nextAction[!side][0];
-                        act[3] = nextAction[!side][1];
-                        DoAction();
-                        auto tmp = dfs_2(side, depth+1);
-                        if( tmp[0]*(!guard[side][0]) + tmp[1]*(!guard[side][1]) < best[0]*(!guard[side][0]) + best[1]*(!guard[side][1]) || (tmp[!guard[side]] == best[!guard[side]] && tmp2+tmp3>(best[2]+best[3])))
+                        if( tmp[0]*(!guard[0]) + tmp[1]*(!guard[1]) < best[0]*(!guard[0]) + best[1]*(!guard[1]) || (tmp[!guard] == best[!guard] && tmp2+tmp3>(best[2]+best[3])))
                         {
                             best[0] = tmp[0];
                             bestact[0] = tmpact[0];
@@ -1129,9 +1137,9 @@ namespace TankGame
                            std::cerr<<"depth"<<depth<<"bestact0 "<<bestact[0]<<" bestact1 "<<bestact[1]<<" bestact2 "<<bestact[2]<<" bestact3 "<<bestact[3]<<endl;
                         }
                         Revert();
-                        if(guard[side][1]==1) break;
+                        if(guard[1]==1) break;
                 }
-                if(guard[side][0] == 1) break;
+                if(guard[0] == 1) break;
             }
             if(depth == 0)
             {
@@ -1235,6 +1243,8 @@ namespace TankGame
             {
                 int flag;
                 nextAction[side][id] = Stay;
+                if(previousActions[currentTurn-1][side][id] <= Left)
+                    nextAction[side][id] = posx > baseX[side] ? RightShoot : LeftShoot;
                 if(flag = face(id,side,posx,posy).first)
                 {
                     if(previousActions[currentTurn - 1][side][id] <= Left){
@@ -1264,119 +1274,151 @@ namespace TankGame
             if(side==0) return tankY[side][id] - 4;
             else return 4 - tankY[side][id];
         }
-        vector<int> processor_1(int side)
+        void processor()
         {
-            //ÆÆ½â¶Ô·½Ïû¼«·ÀÊØ
+            //ç ´è§£å¯¹æ–¹æ¶ˆæé˜²å®ˆ
 
             if(currentTurn > 4)
             for(int id = 0; id <2 ;++id)
             {
                 int tot = 0;
-                if(tankX[!side][id] == posix(id,!side) && tankY[!side][id] == baseY[!side])
+                if(tankX[!mySide][id] == posix(id,!mySide) && tankY[!mySide][id] == baseY[!mySide])
                     for(int j = currentTurn - 1;j > 0; --j)
                     {
-                        if(previousActions[j][!side][id] > Stay &&
-                           previousActions[j][!side][id] <= Left)
+                        if(previousActions[j][!mySide][id] > Stay &&
+                           previousActions[j][!mySide][id] <= Left)
                             break;
                         else tot++;
                     }
-                if(tot>=3)
+                if(tot>=3 && tankAlive[!mySide][id])
                 {
-                    //std::cerr<<"DEFEND"<<id<<endl;
-                    negativedefend[!side][id] = true;
-                    gameField[tankY[!side][id]][tankX[!side][id]] =Steel;
+                    std::cerr<<"DEFEND"<<id<<endl;
+                    negativedefend[id] = true;
+                    //tankAlive[!mySide][id] = false;
+                    gameField[tankY[!mySide][id]][tankX[!mySide][id]] =Steel;
                 }
             }
-            for(int id = 0; id < 2; id++)
-            {
-                if(burst(!id,!side) >=0 && burst(id,side) <= -1)  guard[side][id] = 1;
-                if(rush(id,side) <= rush(!id,!side)) guard[side][id] = 0;
-                if(negativedefend[!side][!id] == true) guard[side][id] = 0;
-            }
-			//std::cerr<<"DEFEND"<<guard[side][0]<<" "<<guard[side][1]<<endl;
-			vector<int> xxx;
-			if(guard[side][0] && guard[side][1])
-			{
-				defend(0,side);
-				defend(1,side);
-			}
-			else
-			{
-                xxx = dfs(side,0);
-                //std::cerr<<"(DEFEND)DFS"<<xxx[0]<<" "<<xxx[1]<<endl;
-                //std::cerr<<nextAction[side][0]<<" "<<nextAction[side][1]<<endl;
-                for(int i = 0;i<2;++i)
-                {
-                    if(guard[side][i]==0) spe_judge(i,side);
-                }
-                //std::cerr<<"after-spe="<<nextAction[side][0]<<" "<<nextAction[side][1]<<endl;
-			}
-            //»Ö¸´Ì¹¿ËÎ»ÖÃ
-			if(tankAlive[0][0]) gameField[tankY[0][0]][tankX[0][0]] = Blue0;
-			if(tankAlive[0][1]) gameField[tankY[0][1]][tankX[0][1]] = Blue1;
-			if(tankAlive[1][0]) gameField[tankY[1][0]][tankX[1][0]] = Red0;
-			if(tankAlive[1][1]) gameField[tankY[1][1]][tankX[1][1]] = Red1;
-			return xxx;
-        }           //end of processor_1
-        vector<int> processor_2(int side)
-        {
-            //ÆÆ½â¶Ô·½Ïû¼«·ÀÊØ
+			//å¤„ç†çš®çš®è™¾
 
-            if(currentTurn > 4)
-            for(int id = 0; id <2 ;++id)
-            {
-                int tot = 0;
-                if(tankX[!side][id] == posix(id,!side) && tankY[!side][id] == baseY[!side])
-                    for(int j = currentTurn - 1;j > 0; --j)
+			if(negativedefend[0] && negativedefend[1])
+			{
+			    int posx1[2] = {6,7};
+			    int posy1[2] = {mySide?2:6, mySide?1:7};
+			    int posx2 = 6;
+			    int posy2 = mySide? 1: 7;
+			    int posx3[2] = {6,5};
+			    int posy3[2] = {mySide?0:8, mySide?1:7};
+
+			    if(posx3[0]==tankX[mySide][0] && posy3[0]==tankY[mySide][0] && posx3[1]==tankX[mySide][1] && posy3[1]==tankY[mySide][1])
+                {
+                        nextAction[mySide][0] = LeftShoot;
+                        nextAction[mySide][1] = mySide? UpShoot : DownShoot;
+                }
+                else if(posx2==tankX[mySide][0] && posy2==tankY[mySide][0] && posx2==tankX[mySide][1] && posy2==tankY[mySide][1])
+                {
+                    if(gameField[posy3[1]][posx3[1]] != None || gameField[posy3[0]][posx3[0]] != None)
                     {
-                        if(previousActions[j][!side][id] > Stay &&
-                           previousActions[j][!side][id] <= Left)
-                            break;
-                        else tot++;
+                        nextAction[mySide][0] = mySide? UpShoot : DownShoot;
+                        nextAction[mySide][1] = LeftShoot;
                     }
-                if(tot>=3)
-                {
-                    std::cerr<<"DEFEND(P2)"<<id<<endl;
-                    negativedefend[!side][id] = true;
-                    gameField[tankY[!side][id]][tankX[!side][id]] =Steel;
+				else if(previousActions[currentTurn-1][mySide][0] > Left || previousActions[currentTurn-1][mySide][1] > Left ||(
+                        previousActions[currentTurn -1][!mySide][mySide] <= Left &&
+                        previousActions[currentTurn -2][!mySide][mySide] > Left))
+                    {
+                        nextAction[mySide][0] = Stay;
+                        nextAction[mySide][1] = Stay;
+                    }
+                    else{
+                        nextAction[mySide][0] = mySide? Up : Down;
+                        nextAction[mySide][1] = Left;
+                    }
                 }
-            }
+                else if(posx1[0]==tankX[mySide][0] && posy1[0]==tankY[mySide][0] && posx1[1]==tankX[mySide][1] && posy1[1]==tankY[mySide][1])
+                {
+                    if(gameField[posy2][posx2] == None)
+                    {
+                        nextAction[mySide][0] = mySide? Up : Down;
+                        nextAction[mySide][1] = Left;
+                    }
+                    else if(previousActions[currentTurn-1][mySide][0] > Left || previousActions[currentTurn-1][mySide][1] > Left)
+                    {
+                        nextAction[mySide][0] = Stay;
+                        nextAction[mySide][1] = Stay;
+                    }
+                    else
+                    {
+                        nextAction[mySide][0] = mySide? UpShoot : DownShoot;
+                        nextAction[mySide][1] = LeftShoot;
+                    }
+                }
+                else if(posx1[1]!=tankX[mySide][1] || posy1[1]!=tankY[mySide][1])
+                {
+					gameField[posy3[0]][posx3[0]] = Steel;
+					gameField[posy3[1]][posx3[1]] = Steel;
+					gameField[tankY[mySide][0]][tankX[mySide][0]] = Steel;
+                    flyto(1,mySide,posx1[1],posy1[1]);
+                    nextAction[mySide][0] = Stay;
+                }
+                else
+                {
+					gameField[posy3[0]][posx3[0]] = Steel;
+					gameField[posy3[1]][posx3[1]] = Steel;
+					gameField[tankY[mySide][1]][tankX[mySide][1]] = Steel;
+                    flyto(0,mySide,posx1[0],posy1[0]);
+                    nextAction[mySide][1] = Stay;
+                }
+                Action act[2];
+                act[0] = nextAction[mySide][0];
+                act[1] = nextAction[mySide][1];
+                nextAction[!mySide][0] = Stay;
+                nextAction[!mySide][1] = Stay;
+                DoAction();
+                if( ! tankAlive[mySide][0] || !tankAlive[mySide][1])
+                {
+                    if(act[0] > Left) act[0] = Stay;
+                    if(act[1] > Left) act[1] = Stay;
+                }
+                nextAction[mySide][0] = act[0];
+                nextAction[mySide][1] = act[1];
+                return ;
+			}
+
+
             for(int id = 0; id < 2; id++)
             {
-                if(burst(!id,!side) >=0 && burst(id,side) <= -1)  guard[side][id] = 1;
-                if(rush(id,side) <= rush(!id,!side)) guard[side][id] = 0;
-                if(negativedefend[!side][!id] == true) guard[side][id] = 0;
+                if(burst(!id,!mySide) >=0 && burst(id,mySide) <= -1)  guard[id] = 1;
+                if(rush(id,mySide) <= rush(!id,!mySide)) guard[id] = 0;
+                if(negativedefend[!id] == true) guard[id] = 0;
             }
-			std::cerr<<"DEFEND(P2)"<<guard[side][0]<<" "<<guard[side][1]<<endl;
-			vector<int> xxx;
-			if(guard[side][0] && guard[side][1])
-			{
-				defend(0,side);
-				defend(1,side);
-			}
-			else
-			{
-                xxx = dfs_2(side,0);
-                //defend(guard[side],side);
-                std::cerr<<"(P2)DFS"<<xxx[0]<<" "<<xxx[1]<<endl;
-                std::cerr<<nextAction[side][0]<<" "<<nextAction[side][1]<<endl;
+            /*if(guard == 2 || !(tankAlive[mySide][0] && tankAlive[mySide][1]))//è¢«æ‰“ä¸­ååº”è¯¥é˜²å®ˆè¿˜æ˜¯è¿›æ”»?
+            {
+                auto xxx = dfs(mySide,0);
+                std::cerr<<"DFS"<<xxx[0]<<" "<<xxx[1]<<endl;
+                std::cerr<<nextAction[mySide][0]<<" "<<nextAction[mySide][1]<<endl;
+                if(tankAlive[mySide][0]) spe_judge(0,mySide);
+                if(tankAlive[mySide][1]) spe_judge(1,mySide);
+            }
+            else*/
+            {
+                std::cerr<<"DEFEND"<<guard[0]<<" "<<guard[1]<<endl;
+                if(guard[0] && guard[1])
+                {
+                    defend(0,mySide);
+                    defend(1,mySide);
+                }
+                else
+                {
+                auto xxx = dfs(mySide,0);
+                //defend(guard,mySide);
+                std::cerr<<"(DEFEND)DFS"<<xxx[0]<<" "<<xxx[1]<<endl;
+                std::cerr<<nextAction[mySide][0]<<" "<<nextAction[mySide][1]<<endl;
                 for(int i = 0;i<2;++i)
                 {
-                    if(guard[side][i]==0) spe_judge(i,side);
+                    if(guard[i]==0) spe_judge(i,mySide);
                 }
-		        std::cerr<<"after-spe(P2)="<<nextAction[side][0]<<" "<<nextAction[side][1]<<endl;
-			}
-            //»Ö¸´Ì¹¿ËÎ»ÖÃ
-			gameField[tankY[0][0]][tankX[0][0]] = Blue0;
-			gameField[tankY[0][1]][tankX[0][1]] = Blue1;
-			gameField[tankY[1][0]][tankX[1][0]] = Red0;
-			gameField[tankY[1][1]][tankX[1][1]] = Red1;
-
-			//processor_1(!side);
-			nextAction[!side][0] = Stay;
-			nextAction[!side][1] = Stay;
-			return xxx;
-        }           //end of processor_2
+                }
+            }
+        }           //end of processor
 
         // end of Tank
 	};
@@ -1388,10 +1430,10 @@ namespace TankGame
 	TankField *field;
 
 #ifdef _MSC_VER
-#pragma region ÓëÆ½Ì¨½»»¥²¿·Ö
+#pragma region ä¸å¹³å°äº¤äº’éƒ¨åˆ†
 #endif
 
-	// ÄÚ²¿º¯Êı
+	// å†…éƒ¨å‡½æ•°
 	namespace Internals
 	{
 		Json::Reader reader;
@@ -1419,7 +1461,7 @@ namespace TankGame
 			}
 			else
 			{
-				// ÊÇµÚÒ»»ØºÏ£¬²ÃÅĞÔÚ½éÉÜ³¡µØ
+				// æ˜¯ç¬¬ä¸€å›åˆï¼Œè£åˆ¤åœ¨ä»‹ç»åœºåœ°
 				int hasBrick[3];
 				for (int i = 0; i < 3; i++)
 					hasBrick[i] = value["field"][i].asInt();
@@ -1427,7 +1469,7 @@ namespace TankGame
 			}
 		}
 
-		// ÇëÊ¹ÓÃ SubmitAndExit »òÕß SubmitAndDontExit
+		// è¯·ä½¿ç”¨ SubmitAndExit æˆ–è€… SubmitAndDontExit
 		void _submitAction(Action tank0, Action tank1, string debug = "", string data = "", string globalData = "")
 		{
 			Json::Value output(Json::objectValue), response(Json::arrayValue);
@@ -1444,8 +1486,8 @@ namespace TankGame
 		}
 	}
 
-	// ´ÓÊäÈëÁ÷£¨ÀıÈç cin »òÕß fstream£©¶ÁÈ¡»ØºÏĞÅÏ¢£¬´æÈë TankField£¬²¢ÌáÈ¡ÉÏ»ØºÏ´æ´¢µÄ data ºÍ globaldata
-	// ±¾µØµ÷ÊÔµÄÊ±ºòÖ§³Ö¶àĞĞ£¬µ«ÊÇ×îºóÒ»ĞĞĞèÒªÒÔÃ»ÓĞËõ½øµÄÒ»¸ö"}"»ò"]"½áÎ²
+	// ä»è¾“å…¥æµï¼ˆä¾‹å¦‚ cin æˆ–è€… fstreamï¼‰è¯»å–å›åˆä¿¡æ¯ï¼Œå­˜å…¥ TankFieldï¼Œå¹¶æå–ä¸Šå›åˆå­˜å‚¨çš„ data å’Œ globaldata
+	// æœ¬åœ°è°ƒè¯•çš„æ—¶å€™æ”¯æŒå¤šè¡Œï¼Œä½†æ˜¯æœ€åä¸€è¡Œéœ€è¦ä»¥æ²¡æœ‰ç¼©è¿›çš„ä¸€ä¸ª"}"æˆ–"]"ç»“å°¾
 	void ReadInput(istream& in, string& outData, string& outGlobalData)
 	{
 		Json::Value input;
@@ -1455,11 +1497,11 @@ namespace TankGame
 			getline(in, inputString);
 		} while (inputString.empty());
 #ifndef _BOTZONE_ONLINE
-		// ²Â²âÊÇµ¥ĞĞ»¹ÊÇ¶àĞĞ
+		// çŒœæµ‹æ˜¯å•è¡Œè¿˜æ˜¯å¤šè¡Œ
 		char lastChar = inputString[inputString.size() - 1];
 		if (lastChar != '}' && lastChar != ']')
 		{
-			// µÚÒ»ĞĞ²»ÒÔ}»ò]½áÎ²£¬²Â²âÊÇ¶àĞĞ
+			// ç¬¬ä¸€è¡Œä¸ä»¥}æˆ–]ç»“å°¾ï¼ŒçŒœæµ‹æ˜¯å¤šè¡Œ
 			string newString;
 			do
 			{
@@ -1490,15 +1532,15 @@ namespace TankGame
 		Internals::_processRequestOrResponse(input, true);
 	}
 
-	// Ìá½»¾ö²ß²¢ÍË³ö£¬ÏÂ»ØºÏÊ±»áÖØĞÂÔËĞĞ³ÌĞò
+	// æäº¤å†³ç­–å¹¶é€€å‡ºï¼Œä¸‹å›åˆæ—¶ä¼šé‡æ–°è¿è¡Œç¨‹åº
 	void SubmitAndExit(Action tank0, Action tank1, string debug = "", string data = "", string globalData = "")
 	{
 		Internals::_submitAction(tank0, tank1, debug, data, globalData);
 		exit(0);
 	}
 
-	// Ìá½»¾ö²ß£¬ÏÂ»ØºÏÊ±³ÌĞò¼ÌĞøÔËĞĞ£¨ĞèÒªÔÚ Botzone ÉÏÌá½» Bot Ê±Ñ¡Ôñ¡°ÔÊĞí³¤Ê±ÔËĞĞ¡±£©
-	// Èç¹ûÓÎÏ·½áÊø£¬³ÌĞò»á±»ÏµÍ³É±ËÀ
+	// æäº¤å†³ç­–ï¼Œä¸‹å›åˆæ—¶ç¨‹åºç»§ç»­è¿è¡Œï¼ˆéœ€è¦åœ¨ Botzone ä¸Šæäº¤ Bot æ—¶é€‰æ‹©â€œå…è®¸é•¿æ—¶è¿è¡Œâ€ï¼‰
+	// å¦‚æœæ¸¸æˆç»“æŸï¼Œç¨‹åºä¼šè¢«ç³»ç»Ÿæ€æ­»
 	void SubmitAndDontExit(Action tank0, Action tank1)
 	{
 		Internals::_submitAction(tank0, tank1);
@@ -1535,7 +1577,7 @@ int main()
 	{
 		string data, globaldata;
 		TankGame::ReadInput(cin, data, globaldata);
-		TankGame::field->processor_2(TankGame::field->mySide);
+		TankGame::field->processor();
 		TankGame::SubmitAndExit(TankGame::field->nextAction[TankGame::field->mySide][0], TankGame::field->nextAction[TankGame::field->mySide][1]);
 	}
 }
