@@ -720,7 +720,7 @@ namespace TankGame
                                     q.push(std::make_pair(x+dx,y+dy));
                                 }
                             }
-                            else if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] != Steel){
+                            else if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] != Steel && gameField[y+dy][x+dx] != Water){
                                 if(mp[id][x+dx][y+dy] == 0 || mp[id][x+dx][y+dy]>mp[id][x][y] + 2)
                                 {
                                     mp[id][x+dx][y+dy] = mp[id][x][y] + 2;
@@ -732,7 +732,7 @@ namespace TankGame
 				}
             for(int i = 0; i<9; i++) if( i!=4)
             {
-                if(gameField[y0][i] != Steel && mp[id][i][y0] + dis(i,y0,baseX[!side],baseY[!side]) < best0 && mp[id][i][y0]!= 0)
+                if(gameField[y0][i] != Steel && gameField[y0][i] != Water && mp[id][i][y0] + dis(i,y0,baseX[!side],baseY[!side]) < best0 && mp[id][i][y0]!= 0)
                 {
                     best0 = mp[id][i][y0]+ dis(i,y0,baseX[!side],baseY[!side]);
                     x0 = i;
@@ -1198,7 +1198,7 @@ namespace TankGame
                                     q.push(std::make_pair(x+dx,y+dy));
                                 }
                             }
-                            else if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] != Steel){
+                            else if(CoordValid(x+dx, y+dy) && gameField[y+dy][x+dx] != Steel &&gameField[y+dy][x+dx] != Water){
                                 if(mp[id][x+dx][y+dy] == 0 || mp[id][x+dx][y+dy]>mp[id][x][y] + 2)
                                 {
                                     mp[id][x+dx][y+dy] = mp[id][x][y] + 2;
@@ -1405,6 +1405,8 @@ namespace TankGame
             }
             else*/
             {
+				//临时处理2019.5.13
+				guard[0] = false; guard[1] = false;
                 std::cerr<<"DEFEND"<<guard[0]<<" "<<guard[1]<<endl;
                 if(guard[0] && guard[1])
                 {
@@ -1419,7 +1421,7 @@ namespace TankGame
                 std::cerr<<nextAction[mySide][0]<<" "<<nextAction[mySide][1]<<endl;
                 for(int i = 0;i<2;++i)
                 {
-                    if(guard[i]==0) spe_judge(i,mySide);
+                   // if(guard[i]==0) spe_judge(i,mySide);
                 }
                 }
             }
