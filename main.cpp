@@ -59,7 +59,8 @@ namespace TankGame
 		Blue0 = 8,
 		Blue1 = 16,
 		Red0 = 32,
-		Red1 = 64
+		Red1 = 64,
+		Water = 128
 	};
 
 	template<typename T> inline T operator~ (T a) { return (T)~(int)a; }
@@ -402,7 +403,7 @@ namespace TankGame
 							if (!CoordValid(x, y))
 								break;
 							FieldItem items = gameField[y][x];
-							if (items != None)
+							if (items != None && items != Water)
 							{
 								// 对射判断
 								if (items >= Blue0 &&
@@ -538,7 +539,7 @@ namespace TankGame
 		}
 
 		// 三个 int 表示场地 01 矩阵（每个 int 用 27 位表示 3 行）
-		TankField(int hasBrick[3], int mySide) : mySide(mySide)
+		TankField(int hasBrick[3],int hasWater[3],int hasSteel[3], int mySide) : mySide(mySide)
 		{
 			for (int i = 0; i < 3; i++)
 			{
@@ -549,6 +550,10 @@ namespace TankGame
 					{
 						if (hasBrick[i] & mask)
 							gameField[y][x] = Brick;
+						else if(hasWater[i] & mask)
+							gameField[y][x] = Water;
+						else if(hasSteel[i] & mask)
+							gameField[y][x] = Steel;
 						mask <<= 1;
 					}
 				}
@@ -559,7 +564,7 @@ namespace TankGame
 					gameField[tankY[side][tank]][tankX[side][tank]] = tankItemTypes[side][tank];
 				gameField[baseY[side]][baseX[side]] = Base;
 			}
-			gameField[baseY[0] + 1][baseX[0]] = gameField[baseY[1] - 1][baseX[1]] = Steel;
+			//gameField[baseY[0] + 1][baseX[0]] = gameField[baseY[1] - 1][baseX[1]] = Steel;
 		}
 
 		// 打印场地
@@ -1462,15 +1467,18 @@ namespace TankGame
 			else
 			{
 				// 是第一回合，裁判在介绍场地
-				int hasBrick[3];
-				for (int i = 0; i < 3; i++)
-					hasBrick[i] = value["field"][i].asInt();
-				field = new TankField(hasBrick, value["mySide"].asInt());
+				int hasBrick[3],hasWater[3],hasSteel[3];
+                for (int i = 0; i < 3; i++){//Tank2 feature(???????????????)
+                    hasWater[i] = value["waterfield"][i].asInt();
+                    hasBrick[i] = value["brickfield"][i].asInt();
+                    hasSteel[i] = value["steelfield"][i].asInt();
+                }
+                field = new TankField(hasBrick,hasWater,hasSteel,value["mySide"].asInt());
 			}
 		}
 
 		// 请使用 SubmitAndExit 或者 SubmitAndDontExit
-		void _submitAction(Action tank0, Action tank1, string debug = "", string data = "", string globalData = "")
+		void _submitAction(Action tank0, Action tank1, string debug = "", string data = "", string globaldata = "")
 		{
 			Json::Value output(Json::objectValue), response(Json::arrayValue);
 			response[0U] = tank0;
@@ -1480,8 +1488,8 @@ namespace TankGame
 				output["debug"] = debug;
 			if (!data.empty())
 				output["data"] = data;
-			if (!globalData.empty())
-				output["globalData"] = globalData;
+			if (!globaldata.empty())
+				output["globaldata"] = globaldata;
 			cout << writer.write(output) << endl;
 		}
 	}
@@ -1533,9 +1541,9 @@ namespace TankGame
 	}
 
 	// 提交决策并退出，下回合时会重新运行程序
-	void SubmitAndExit(Action tank0, Action tank1, string debug = "", string data = "", string globalData = "")
+	void SubmitAndExit(Action tank0, Action tank1, string debug = "", string data = "", string globaldata = "")
 	{
-		Internals::_submitAction(tank0, tank1, debug, data, globalData);
+		Internals::_submitAction(tank0, tank1, debug, data, globaldata);
 		exit(0);
 	}
 
@@ -1552,7 +1560,6 @@ namespace TankGame
 #pragma endregion
 #endif
 	}
-
 int RandBetween(int from, int to)
 {
 	return rand() % (to - from) + from;
@@ -1567,8 +1574,6 @@ TankGame::Action RandAction(int tank)
 			return act;
 	}
 }
-
-
 
 int main()
 {
